@@ -24,7 +24,6 @@ app.get('/search/english/:english', async (req, res) => {
    res.json("This operation is not supported yet.")
 })
 
-
 app.get('/dictionary/complete', (req, res) => res.sendFile("jmdicten.json", {root: import.meta.dirname}))
 
 app.get('/dictionary/common', (req, res) => res.sendFile("jmdictcommon.json", {root: import.meta.dirname}))
