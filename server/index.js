@@ -14,17 +14,16 @@ app.get('/search/reading/:reading', async (req, res) => {
    res.json(results)
 })
 
-app.get('/search/english/:english', async (req, res) => {
-   var w = req.params['english']
-   //for
-   res.send("This operation is not supported yet.")
-})
-
 app.get('/search/kanji/:kanji', async (req, res) => {
    var w = req.params['kanji']
    var results = await kanjiAnywhere(db, w)
    res.json(results)
 })
+
+app.get('/search/english/:english', async (req, res) => {
+   res.json("This operation is not supported yet.")
+})
+
 
 app.get('/dictionary/complete', (req, res) => res.sendFile("jmdicten.json", {root: import.meta.dirname}))
 
