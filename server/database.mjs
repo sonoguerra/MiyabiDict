@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
