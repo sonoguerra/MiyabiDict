@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { setDoc, getFirestore, doc } from "firebase/firestore";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
@@ -22,7 +22,7 @@ async function addTags() {
 }
 
 async function addVocabulary(start, end) {
-   for (let i = start; i <= end; i++) {
+   for (let i = start; i <= end && i < dictionary.words.length; i++) {
       var vocab = dictionary.words[i]
       /*Nested arrays are not supported in Firebase. 
       This gets rid of the only possible instances of such a thing by removing antonyms and related words, might find a way to include them in the future.*/
@@ -45,6 +45,6 @@ async function addVocabulary(start, end) {
 
 
 
-//addTags()
+addTags()
 
-//addVocabulary(process.argv[2], process.argv[3]);
+addVocabulary(process.argv[2], process.argv[3]);
