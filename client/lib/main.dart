@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:pwa_dict/dictionary.dart';
+import 'package:pwa_dict/wordpage.dart';
 
 void main() {
   runApp(
     MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text('Dictionary')),
-        body: DictionaryList(),
+      debugShowCheckedModeBanner: false,
+      home: WordPage()
       )
-    )
-  );
+    );
 }
 
 /*
