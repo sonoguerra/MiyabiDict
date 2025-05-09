@@ -1,8 +1,12 @@
+import 'entry.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class WordPage extends StatelessWidget {
-  const WordPage({super.key});
+
+  final Vocabulary displayed;
+
+  const WordPage({super.key, required this.displayed});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +22,9 @@ class WordPage extends StatelessWidget {
               );
             },
           ),
-          Text("直す", style: GoogleFonts.shipporiMincho(fontSize: 65.0)),
+          Text(displayed.kanjis[0].text, style: GoogleFonts.shipporiMincho(fontSize: 65.0)),
           Text(
-            "(なおす)",
+            displayed.kana[0].text,
             style: GoogleFonts.shipporiMincho(
               fontSize: 35.0,
               color: Color.fromARGB(201, 0, 0, 0),
