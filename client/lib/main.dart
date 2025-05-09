@@ -2,27 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:pwa_dict/dictionary.dart';
 
 void main() {
-  runApp(
-    MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text('Dictionary')),
-        body: DictionaryList(),
-      )
-    )
-  );
+  runApp(const MainApp());
 }
 
-/*
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(        
+      theme: ThemeData(
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(fontSize: 18),
+          bodyMedium: TextStyle(fontSize: 16),
+        ),
         colorScheme: ColorScheme(
           brightness: Brightness.dark,
-          primary: const Color.fromARGB(255,200,233,233),
+          primary: const Color.fromARGB(255, 200, 233, 233),
           onPrimary: Colors.black,
           secondary: Colors.cyan.shade300,
           onSecondary: Colors.grey,
@@ -33,6 +29,7 @@ class MainApp extends StatelessWidget {
         ),
       ),
       home: HomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -53,23 +50,32 @@ class _MyHomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Main Page')),
-      body: Center(child: Text('Imparare a leggere in Giapponese, weeb')),
-      bottomNavigationBar: BottomNavigationBar(   
+      appBar: AppBar(title: Text('Miyabi')),
+      body:
+          <Widget>[
+            Center(
+              child: Text(
+                'Learn Japanese',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            DictionaryList(),
+            Text("Prova", style: Theme.of(context).textTheme.bodyLarge),
+          ][_selectedIndex],
+      bottomNavigationBar: NavigationBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.inversePrimary,
-        selectedItemColor: Theme.of(context).colorScheme.inversePrimary,
-        items: [          
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Dizionario'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Parole Memorizzate',
+        indicatorColor: Theme.of(context).colorScheme.inversePrimary,
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onItemTapped,
+        destinations: [
+          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.book), label: 'Dizionario'),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark),
+            label: 'Memorizzate',
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }
-}*/
+}
