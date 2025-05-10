@@ -4,14 +4,14 @@ import 'firebase_options.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'entry.dart';
-import 'dart:convert';
+import 'database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  var displayed = await Database.search("きんもくせい");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  var displayed = Vocabulary.fromJson(jsonDecode('{"id":"1151200","kanji":[{"common":false,"text":"茜","tags":[]}],"kana":[{"common":false,"text":"あかね","tags":[],"appliesToKanji":["*"]},{"common":false,"text":"アカネ","tags":[],"appliesToKanji":[]}],"sense":[{"partOfSpeech":["n"],"appliesToKanji":["*"],"appliesToKana":["*"],"related":[],"antonym":[],"field":[],"dialect":[],"misc":["uk"],"info":[],"languageSource":[],"gloss":[{"lang":"eng","gender":null,"type":null,"text":"madder (esp. Japanese madder, Rubia argyi)"}]},{"partOfSpeech":["n"],"appliesToKanji":["*"],"appliesToKana":["*"],"related":[],"antonym":[],"field":[],"dialect":[],"misc":[],"info":[],"languageSource":[],"gloss":[{"lang":"eng","gender":null,"type":null,"text":"madder (red color)"}]}]}'));
   runApp(
-    MaterialApp(debugShowCheckedModeBanner: false, home: WordPage(displayed: displayed)),
+    MaterialApp(debugShowCheckedModeBanner: false, home: WordPage(displayed: displayed[0])),
   );
 }
 

@@ -6,11 +6,10 @@ class Database {
 
   static Future<List<Vocabulary>> search(String query) async {
     List<Vocabulary> result = [];
-    var response = await http.get(Uri.parse("http://localhost:5000/search/reading/$query"));
-    var partial = jsonDecode(response.body);
-    
+    var response = await http.get(Uri.https("a", "/"));
+    var partial = jsonDecode(response.body)['words'];
     for (int i = 0; i < partial.length; i++) {
-      result.add(Vocabulary.fromJson(partial['words'][i]));
+      result.add(Vocabulary.fromJson(partial[i]));
     }
 
     return result;

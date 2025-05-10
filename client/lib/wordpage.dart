@@ -2,11 +2,12 @@ import 'entry.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class WordPage extends StatelessWidget {
+import 'jputils.dart';
 
+class WordPage extends StatelessWidget {
   final Vocabulary displayed;
 
-  const WordPage({super.key, required this.displayed});
+  WordPage({super.key, required this.displayed});
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +23,18 @@ class WordPage extends StatelessWidget {
               );
             },
           ),
-          Text(displayed.kanjis[0].text, style: GoogleFonts.shipporiMincho(fontSize: 65.0)),
           Text(
-            displayed.kana[0].text,
-            style: GoogleFonts.shipporiMincho(
-              fontSize: 35.0,
-              color: Color.fromARGB(201, 0, 0, 0),
+            displayed.kanjis[0].text,
+            style: GoogleFonts.shipporiMincho(fontSize: 65.0),
+          ),
+          Tooltip(
+            message: JPUtils.toRomaji(displayed.kana[0].text),
+            child: Text(
+              displayed.kana[0].text,
+              style: GoogleFonts.shipporiMincho(
+                fontSize: 35.0,
+                color: Color.fromARGB(201, 0, 0, 0),
+              ),
             ),
           ),
         ],
