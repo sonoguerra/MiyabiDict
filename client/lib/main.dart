@@ -6,7 +6,9 @@ void main() {
     MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: Text('Dictionary')),
-        body: DictionaryList(),
+        body: Center(
+          child: DictionaryList(),
+        )
       )
     )
   );
