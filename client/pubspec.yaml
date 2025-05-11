@@ -14,6 +14,7 @@ dependencies:
   google_fonts: ^6.2.1
   http: ^1.4.0
   json_annotation: ^4.9.0
+  kana_kit: ^2.1.1
 
 dev_dependencies:
   flutter_test:

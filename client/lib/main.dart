@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pwa_dict/wordpage.dart';
-import 'firebase_options.dart';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'entry.dart';
 import 'database.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  var displayed = await Database.search("きんもくせい");
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  var displayed = await Database.search("金");
   runApp(
     MaterialApp(debugShowCheckedModeBanner: false, home: WordPage(displayed: displayed[0])),
   );
