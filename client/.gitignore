@@ -48,4 +48,4 @@ app.*.map.json
 /client/android/
 /client/windows/
 /client/linux/
-/client/macos
+/client/macos/
