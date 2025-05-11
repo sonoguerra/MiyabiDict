@@ -25,5 +25,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/jmdict-eng-common-3.6.1.json
