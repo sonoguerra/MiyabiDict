@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pwa_dict/dictionary.dart';
-
+import 'dictionary.dart';
 void main() {
+
   runApp(const MainApp());
+  
 }
 
 class MainApp extends StatelessWidget {
