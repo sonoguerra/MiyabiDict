@@ -44,4 +44,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-/lib/main.dart
+/client/ios/
+/client/android/
+/client/windows/
+/client/linux/
+/client/macos
