@@ -17,7 +17,7 @@ class Vocabulary {
 
   Vocabulary(this.id, this.kanjis, this.senses, this.kana);
 
-  String get word => kanjis.isNotEmpty ? kanjis[0].text : kanjis[0].text;
+  String get word => kanjis.isNotEmpty ? kanjis[0].text : kana[0].text;
   String get mainReading => kana[0].text;
 
   List<String> listViewElements() => [word, (word == mainReading ? "" : mainReading), _compactGlosses()];
@@ -29,14 +29,6 @@ class Vocabulary {
     }
     return elements.join('; ');
   }
-
-
-
-
-
-
-
-
 
   factory Vocabulary.fromJson(Map<String, dynamic> json) => _$VocabularyFromJson(json);
   
