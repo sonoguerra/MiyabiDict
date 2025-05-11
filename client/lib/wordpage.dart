@@ -2,10 +2,11 @@ import 'entry.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'jputils.dart';
+import 'package:kana_kit/kana_kit.dart';
 
 class WordPage extends StatelessWidget {
   final Vocabulary displayed;
+  final _kanaKit = const KanaKit();
 
   const WordPage({super.key, required this.displayed});
 
@@ -24,13 +25,13 @@ class WordPage extends StatelessWidget {
             },
           ),
           Text(
-            displayed.kanjis[0].text,
+            displayed.word,
             style: GoogleFonts.shipporiMincho(fontSize: 65.0),
           ),
           Tooltip(
-            message: JPUtils.toRomaji(displayed.kana[0].text),
-            child: Text(
-              displayed.kana[0].text,
+            message: _kanaKit.toRomaji(displayed.kana[0].text),
+            child: Text(displayed.word == displayed.kana[0].text ? "" :
+              "【${displayed.kana[0].text}】",
               style: GoogleFonts.shipporiMincho(
                 fontSize: 35.0,
                 color: Color.fromARGB(201, 0, 0, 0),
@@ -41,4 +42,7 @@ class WordPage extends StatelessWidget {
       ),
     );
   }
+
+
+
 }

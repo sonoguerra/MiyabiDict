@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pwa_dict/dictionary.dart';
 
+
 void main() {
   runApp(const MainApp());
 }
@@ -13,13 +14,13 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
-          bodyLarge: TextStyle(fontSize: 45),
+          bodyLarge: TextStyle(fontSize: 50),
           bodyMedium: TextStyle(fontSize: 35),
         ),
         colorScheme: ColorScheme(
           brightness:
               Brightness
-                  .dark, //92, 143, 143, 254 Violetto               //255,200, 233, 233 Ghiaccio
+                  .dark,
           primary: const Color.fromARGB(92, 143, 143, 254),
           onPrimary: Colors.black,
           secondary: Colors.cyan.shade300,

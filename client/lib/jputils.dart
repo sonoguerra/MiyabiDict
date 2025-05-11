@@ -2,7 +2,7 @@ class JPUtils {
 
   //There might be a better way to do this but for now we'll keep this hardcoded. Added obsolete kana too because you never know.
 
-  static Map<String, String> romajiMapping = {
+  /*static Map<String, String> romajiMapping = {
     'あ': 'a', 'ア': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'ウ': 'u', 'エ': 'e', 'お': 'o', 'オ': 'o', 'イ': 'i',
     'か': 'ka', 'カ': 'ka', 'き': 'ki', 'キ': 'ki', 'く': 'ku', 'ク': 'ku', 'け': 'ke', 'ケ': 'ke', 'こ': 'ko', 'コ': 'ko',
     'さ': 'sa', 'サ': 'sa', 'し': 'shi', 'シ': 'shi', 'す': 'su', 'ス': 'su', 'せ': 'se', 'セ': 'se', 'そ': 'so', 'ソ': 'so',
@@ -37,5 +37,15 @@ class JPUtils {
       }
     }
     return romaji;
-  }
+  }*/
+
+
+
+
+
+
+
+
+
+  static List<Map<String, String>> sentences = [{"今日はいい天気だね": "Nice weather today!"}];
 }
