@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pwa_dict/dict_util.dart';
+import 'package:pwa_dict/database.dart';
+import 'package:pwa_dict/entry.dart';
+import 'package:pwa_dict/wordpage.dart';
 
 class DictionaryList extends StatelessWidget{
   const DictionaryList({super.key});
@@ -14,8 +16,8 @@ class _AsyncSearch extends StatefulWidget {
 }
 
 class _AsyncSearchState extends State<_AsyncSearch> {
-  String? _query;
-  List<String> _results = []; 
+  // String? _query;
+  List<Vocabulary> _results = []; 
   final List<String> _prevQueries = [];
   late final SearchController _sc;
 
@@ -33,13 +35,14 @@ class _AsyncSearchState extends State<_AsyncSearch> {
 
   //TODO
   Future<void> _performSearch(String q) async {
-    // final fetchedResults = await DictUtil.readJson("assets/jmdict-eng-common-3.6.1.json");
+    final fetchedRes = await Database.search(q);
+
     setState(() {
-      _query = q;
+      // _query = q;
       if (!_prevQueries.contains(q)) {
         _prevQueries.add(q);
       }
-      _results = ['Result for "$q"']; // Replace with actual results
+      _results = fetchedRes;
     });
   }
 
@@ -91,15 +94,34 @@ class _AsyncSearchState extends State<_AsyncSearch> {
       ),
       Expanded(
         child: ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.vertical,
           itemCount: _results.length,
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(_results[index]),
+              title: Row(
+                spacing: 10.0,
+                children: [
+                  Text(_results[index].listViewElements()[0]),
+                  Text(
+                    _results[index].listViewElements()[1], 
+                    style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  )
+                ],
+              ),
+              subtitle: Text(_results[index].listViewElements()[2]),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => WordPage(displayed: _results[index]), // wrong implementation
+                  )
+                );
+              },
             );
           },
-        ),
-      ),
-      ],
+        )
+      )
+    ],
     );
   }
 }

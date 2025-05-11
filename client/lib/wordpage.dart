@@ -7,7 +7,7 @@ import 'jputils.dart';
 class WordPage extends StatelessWidget {
   final Vocabulary displayed;
 
-  WordPage({super.key, required this.displayed});
+  const WordPage({super.key, required this.displayed});
 
   @override
   Widget build(BuildContext context) {
