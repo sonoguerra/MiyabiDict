@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'dictionary.dart';
 void main() {
 
   runApp(const MainApp());
