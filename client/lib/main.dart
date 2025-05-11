@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pwa_dict/dictionary.dart';
+import 'package:pwa_dict/wordpage.dart';
+import 'database.dart';
 
-void main() {
+void main() async {
+  var displayed = await Database.search("金");
   runApp(
-    MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text('Dictionary')),
-        body: DictionaryList(),
-      )
-    )
+    MaterialApp(debugShowCheckedModeBanner: false, home: WordPage(displayed: displayed[0])),
   );
 }
 
