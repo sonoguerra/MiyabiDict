@@ -44,8 +44,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-/client/ios/
-/client/android/
-/client/windows/
-/client/linux/
-/client/macos/
+# Build folders
+ios/
+android/
+windows/
+linux/
+macos/
