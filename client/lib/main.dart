@@ -13,12 +13,14 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
-          bodyLarge: TextStyle(fontSize: 18),
-          bodyMedium: TextStyle(fontSize: 16),
+          bodyLarge: TextStyle(fontSize: 45),
+          bodyMedium: TextStyle(fontSize: 32),
         ),
         colorScheme: ColorScheme(
-          brightness: Brightness.dark,
-          primary: const Color.fromARGB(255, 200, 233, 233),
+          brightness:
+              Brightness
+                  .dark, //92, 143, 143, 254 Violetto               //255,200, 233, 233 Ghiaccio
+          primary: const Color.fromARGB(92, 143, 143, 254),
           onPrimary: Colors.black,
           secondary: Colors.cyan.shade300,
           onSecondary: Colors.grey,
@@ -27,6 +29,7 @@ class MainApp extends StatelessWidget {
           surface: Colors.white,
           onSurface: Colors.black,
         ),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 200, 233, 233),
       ),
       home: HomePage(),
       debugShowCheckedModeBanner: false,
@@ -50,17 +53,26 @@ class _MyHomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Miyabi')),
       body:
-          <Widget>[
+          <Widget>[   
             Center(
-              child: Text(
-                'Learn Japanese',
-                style: Theme.of(context).textTheme.bodyLarge,
+              child: Align(
+                alignment: Alignment.center,
+                child: Row(
+                  children: [
+                    Text(
+                      "Welcome to Miyabi",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),                    
+                    Icon(
+                      Icons.mood_bad,                      
+                    ),
+                  ],
+                ),
               ),
             ),
             DictionaryList(),
-            Text("Prova", style: Theme.of(context).textTheme.bodyLarge),
+            Text("Prova", style: Theme.of(context).textTheme.bodyMedium),
           ][_selectedIndex],
       bottomNavigationBar: NavigationBar(
         backgroundColor: Theme.of(context).colorScheme.primary,

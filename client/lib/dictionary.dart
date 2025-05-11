@@ -13,7 +13,7 @@ class DictionaryList extends StatelessWidget{
       itemBuilder: (BuildContext context, int index) {  
         var item = words[index];
         return Container(
-          decoration: BoxDecoration(color: Colors.blue),
+          decoration: BoxDecoration(color: Color.fromARGB(92, 143, 143, 254)),
           child: Center(
             child: Text(
               item,
