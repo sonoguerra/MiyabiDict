@@ -17,7 +17,7 @@ class Vocabulary {
 
   Vocabulary(this.id, this.kanjis, this.senses, this.kana);
 
-  String get word => kanjis.isNotEmpty ? kanjis[0].text : kana[0].text;
+  String get word => (kanjis.isNotEmpty && kanjis[0].common) ? kanjis[0].text : kana[0].text;
   String get mainReading => kana[0].text;
 
   List<String> listViewElements() => [word, (word == mainReading ? "" : mainReading), _compactGlosses()];
@@ -35,6 +35,7 @@ class Vocabulary {
   Map<String, dynamic> toJson() => _$VocabularyToJson(this);
 
 }
+
 
 @JsonSerializable(explicitToJson: true)
 class JKanji {
@@ -108,11 +109,20 @@ class JSense {
 
   @JsonKey(name: "gloss")
   final List<JGloss> meaning;
+  
   final List<String> info;
   final List<Language> languageSource;
   final List<String> misc;
   final List<String> partOfSpeech;
   final List<dynamic> related;
+
+  String get glosses {
+    List<String> elements = [];
+    for (int i = 0; i < meaning.length; i++) {
+      elements.add(meaning[i].text);
+    }
+    return elements.join(" | ");
+  }
 
   JSense(this.antonym, this.appliesToKanji, this.appliesToKana, this.dialect, this.subject, this.meaning, this.info, this.languageSource, this.misc, this.partOfSpeech, this.related);
 

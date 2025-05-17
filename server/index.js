@@ -8,6 +8,7 @@ const {db} = await jmdictPromise
 const port = process.env.PORT || 5000
 const dir = import.meta.dirname
 
+
 app.get('/', (req, res) => res.send("This server only provides APIs for the dictionary app.\n" + license))
 
 app.get('/search/reading/:reading', async (req, res) => {
@@ -23,15 +24,25 @@ app.get('/search/kanji/:kanji', async (req, res) => {
 })
 
 app.get('/search/english/:english', async (req, res) => {
-   res.json("This operation is not supported yet.\n" + license)
+   var query = []
+   for (let i = 0x3040; i < 0x30A0; i++) {
+      let results = await readingBeginning(db, String.fromCharCode(i))
+      for (let j = 0; j < results.length; j++) {
+         for (let k = 0; k < results[j].sense.length; k++) {
+            for (let l = 0; l < results[j].sense[k].gloss.length; l++) {
+               let w = results[j].sense[k].gloss[l].text.toLowerCase()
+               if (w.split(" ").includes(req.params['english'])) {
+                  query.push(results[j])
+               }
+            }
+         }
+      }
+   }
+   res.json({words: query, license: license})
 })
 
-app.get('/dictionary/common', (req, res) => {
-   res.sendFile("jmdictcommon.json", {root: dir})
-})
+app.get('/dictionary/common', (req, res) => res.sendFile("jmdictcommon.json", {root: dir}))
 
 app.get('/dictionary', (req, res) => res.end(license))
 
-app.listen(port, () => {
-   console.log("Server running.")
-})
+app.listen(port, () => console.log("Server running."))

@@ -9,6 +9,7 @@ class Database {
   static const _kanaKit = KanaKit();
 
   static Future<List<Vocabulary>> search(String q) async {
+
     List<Vocabulary> result = [];
     Uri resource;
 
