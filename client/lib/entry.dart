@@ -127,6 +127,5 @@ class JSense {
   JSense(this.antonym, this.appliesToKanji, this.appliesToKana, this.dialect, this.subject, this.meaning, this.info, this.languageSource, this.misc, this.partOfSpeech, this.related);
 
   factory JSense.fromJson(Map<String, dynamic> json) => _$JSenseFromJson(json);
-  
   Map<String, dynamic> toJson() => _$JSenseToJson(this);
 }
