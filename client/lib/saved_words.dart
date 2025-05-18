@@ -62,7 +62,7 @@ class _HoverIconButtonState extends State<_HoverIconButton> {
       ),
       tileColor:
           (widget.index % 2 == 0) //TODO: change colors
-              ? Theme.of(context).colorScheme.secondary
+              ? Theme.of(context).colorScheme.primary
               : Colors.white,
     );
   }
