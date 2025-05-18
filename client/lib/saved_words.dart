@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
 
-var words = [
-      'flavio',
-      'paolo',
-      'mario',
-      'luca',
-      'claudio',
-      'renato',
-    ]; //TODO implement real saved list
-
 class SavedWords extends StatefulWidget {
   const SavedWords({super.key});
 
@@ -17,11 +8,14 @@ class SavedWords extends StatefulWidget {
 }
 
 class _SavedWordsState extends State<SavedWords> {
+  List words = List.generate(100, (index) {
+    return "Word #$index";
+  }); //TODO implement real saved list
 
-  @override
-  void initState() {
-    
-    super.initState();
+  void _handleTileDeleted(int indexToRemove) {
+    setState(() {
+      words.removeAt(indexToRemove); //TODO: animations
+    });
   }
 
   @override
@@ -29,45 +23,47 @@ class _SavedWordsState extends State<SavedWords> {
     return ListView.builder(
       itemCount: words.length,
       itemBuilder: (context, index) {
-        return _HoverIconButton(index: index);
+        return _HoverIconButton(index: index, onChanged: _handleTileDeleted, text: words[index]);
       },
     );
   }
 }
 
 class _HoverIconButton extends StatefulWidget {
+  const _HoverIconButton({super.key, required this.index, required this.onChanged, required this.text});
+
   final int index;
-
-  const _HoverIconButton({super.key, required this.index});
-
+  final ValueChanged<int> onChanged;
+  final String text;
+  
   @override
-  State<StatefulWidget> createState() => _HoverIconState();
+  State<StatefulWidget> createState() => _HoverIconButtonState();
 }
 
-class _HoverIconState extends State<_HoverIconButton> {
+class _HoverIconButtonState extends State<_HoverIconButton> {
   bool _isHovered = false;
+  
+  void _handleTap() {
+    widget.onChanged(widget.index);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(words[widget.index]),
+      title: Text(widget.text),
       leading: MouseRegion(
         onEnter: (event) => setState(() => _isHovered = true),
         onExit: (event) => setState(() => _isHovered = false),
         cursor: SystemMouseCursors.click,
         child: IconButton(
           icon: Icon(_isHovered ? Icons.bookmark_remove : Icons.bookmark),
-          onPressed: () {
-            setState(() {
-              words.removeAt(widget.index);
-            });
-          },
+          onPressed: () => _handleTap(),
         ),
       ),
       tileColor:
           (widget.index % 2 == 0) //TODO: change colors
               ? Theme.of(context).colorScheme.secondary
-              : Theme.of(context).colorScheme.secondary,
+              : Colors.white,
     );
   }
 }
