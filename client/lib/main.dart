@@ -157,7 +157,7 @@ class _MyHomePageState extends State<HomePage> {
           body: Row(
             children: [
               NavigationRail(
-                leading: const SizedBox(height: 80),
+                groupAlignment: 0,
                 selectedIndex: _selectedIndex,
                 onDestinationSelected: _onItemTapped,
                 backgroundColor: Theme.of(context).colorScheme.primary,
