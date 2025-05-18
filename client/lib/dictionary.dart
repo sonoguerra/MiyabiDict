@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pwa_dict/database.dart';
-import 'package:pwa_dict/entry.dart';
-import 'package:pwa_dict/wordpage.dart';
+import 'database.dart';
+import 'entry.dart';
+import 'wordpage.dart';
 
 class DictionaryList extends StatelessWidget {
   const DictionaryList({super.key});

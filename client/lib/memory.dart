@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pwa_dict/database.dart';
-import 'package:pwa_dict/entry.dart';
-import 'package:pwa_dict/jputils.dart';
+import 'database.dart';
+import 'entry.dart';
+import 'jputils.dart';
+
 import 'dart:math';
 
 class MemoryGame extends StatefulWidget {
