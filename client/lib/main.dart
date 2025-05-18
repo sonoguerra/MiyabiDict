@@ -21,7 +21,7 @@ class MainApp extends StatelessWidget {
         colorScheme: ColorScheme(
           brightness:
               Brightness
-                  .dark, //92, 143, 143, 254 Violetto               //255,200, 233, 233 Ghiaccio
+                  .dark,
           primary: const Color.fromARGB(92, 143, 143, 254),
           onPrimary: Colors.black,
           secondary: Color.fromARGB(255, 122, 239, 239),
@@ -46,6 +46,8 @@ class HomePage extends StatefulWidget {
   createState() => _MyHomePageState();
 }
 
+
+
 class _MyHomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
@@ -62,10 +64,7 @@ class _MyHomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Miyabi App',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        title: Image.asset("assets/logo.png", height: 70),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
