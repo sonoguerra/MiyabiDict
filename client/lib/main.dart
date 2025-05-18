@@ -42,6 +42,8 @@ class HomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+
+
 class _MyHomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
@@ -55,10 +57,7 @@ class _MyHomePageState extends State<HomePage> {
   Widget build(BuildContext context) {    
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Miyabi App',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        title: Image.asset("assets/logo.png", height: 70),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,

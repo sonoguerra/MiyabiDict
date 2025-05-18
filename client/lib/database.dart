@@ -8,23 +8,30 @@ class Database {
 
   static const _kanaKit = KanaKit();
 
-  static Future<List<Vocabulary>> search(String q) async {
+  static Future<List<Vocabulary>> search(String q, {bool english = false}) async {
 
     List<Vocabulary> result = [];
     Uri resource;
-
-    if (_kanaKit.isRomaji(q)) {
-      q = _kanaKit.toKana(q);
+    
+    if (english) {
+      resource = Uri.https("miyabiserver.onrender.com", "/search/english/$q");
     }
-    
-    resource = _kanaKit.isKana(q) ? Uri.https("miyabiserver.onrender.com", "/search/reading/$q") : Uri.https("miyabiserver.onrender.com", "/search/kanji/$q");
-    
+    else {
+      if (_kanaKit.isRomaji(q)) {
+        q = _kanaKit.toKana(q);
+      }
+      resource = _kanaKit.isKana(q) ? Uri.https("miyabiserver.onrender.com", "/search/reading/$q") : Uri.https("miyabiserver.onrender.com", "/search/kanji/$q");
+    }
+
     var response = await http.get(resource);
     var partial = jsonDecode(response.body)['words'];
+
     for (int i = 0; i < partial.length; i++) {
       result.add(Vocabulary.fromJson(partial[i]));
     }
+
     return result;
+    
   }
 
 }
