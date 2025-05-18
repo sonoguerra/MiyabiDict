@@ -20,22 +20,4 @@ class JPUtils {
     'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo', 'ザ': 'za', 'ジ': 'ji', 'ズ': 'zu', 'ゼ': 'ze', 'ゾ': 'zo',
   };
 
-  static String toRomaji(String kanaword) {
-    String romaji = '';
-    bool sokuon = false;
-    //TODO parole che contengono le vocali piccole
-    for (int i = 0; i < kanaword.length; i++) {
-      //Pronunciation of this character depends on what follows so we can't know beforehand.
-      if (kanaword[i] != 'っ' && kanaword[i] != 'ッ') {
-        var reading = romajiMapping[kanaword[i]]!;
-        if (sokuon) {
-          romaji += reading[0];
-        }
-        romaji += reading;  
-      } else {
-        sokuon = true;
-      }
-    }
-    return romaji;
-  }
 }
