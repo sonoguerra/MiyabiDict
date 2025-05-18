@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pwa_dict/dictionary.dart';
+import 'package:pwa_dict/saved_words.dart';
 
 void main() {
   runApp(const MainApp());
@@ -97,7 +98,7 @@ class _MyHomePageState extends State<HomePage> {
               ),
             ),
             DictionaryList(),
-            Text("Prova", style: Theme.of(context).textTheme.bodyMedium),
+            SavedWords(),
           ][_selectedIndex],
       bottomNavigationBar: NavigationBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
