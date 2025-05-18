@@ -42,6 +42,8 @@ class HomePage extends StatefulWidget {
 
   @override
   createState() => _MyHomePageState();
+
+
 }
 
 class _MyHomePageState extends State<HomePage> {
@@ -139,15 +141,16 @@ class _MyHomePageState extends State<HomePage> {
           ),
         )
         : Scaffold(
+
+
+
+
+
+
+
           appBar: AppBar(
             title: Image.asset("assets/logo.png", height: 70),
             centerTitle: true,
-
-
-
-
-
-
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
           ),
