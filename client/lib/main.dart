@@ -114,10 +114,10 @@ class _MyHomePageState extends State<HomePage> {
     return (MediaQuery.of(context).orientation == Orientation.portrait && MediaQuery.of(context).size.aspectRatio > 1.2)
         ? Scaffold(
           appBar: AppBar(
-            title: Image.asset("assets/logo.png", height: 70),
             centerTitle: true,
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            title: Image.asset("assets/logo.png", height: 70),
           ),
           body: mainScreen[_selectedIndex],
 
@@ -149,10 +149,10 @@ class _MyHomePageState extends State<HomePage> {
 
 
           appBar: AppBar(
-            title: Image.asset("assets/logo.png", height: 70),
             centerTitle: true,
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            title: Image.asset("assets/logo.png", height: 70),
           ),
           body: Row(
             children: [

@@ -124,6 +124,15 @@ class JSense {
     return elements.join(" | ");
   }
 
+  List<String> get tags {
+    List<String> elements = [];
+    elements.addAll(partOfSpeech);
+    elements.addAll(subject);
+    elements.addAll(dialect);
+    elements.addAll(misc);
+    return elements;
+  }
+
   JSense(this.antonym, this.appliesToKanji, this.appliesToKana, this.dialect, this.subject, this.meaning, this.info, this.languageSource, this.misc, this.partOfSpeech, this.related);
 
   factory JSense.fromJson(Map<String, dynamic> json) => _$JSenseFromJson(json);
