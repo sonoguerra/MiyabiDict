@@ -40,10 +40,10 @@ class WordPage extends StatelessWidget {
                       displayed.word ==
                               displayed
                                   .kana[0]
-                                  .text //Displays the reading separately only if the reading doesn't already coincide with the word.
+                                  .text //Displays the reading separately only if the reading doesn't already coincide with the actual word.
                           ? ""
 
-                          
+
                           : "【${displayed.kana[0].text}】",
                       style: GoogleFonts.shipporiMincho(
                         fontSize: 35.0,
