@@ -3,8 +3,16 @@ import 'dictionary.dart';
 import 'memory.dart';
 import 'saved_words.dart';
 
-void main() {
-  runApp(const MainApp());
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+var auth = FirebaseAuth.instance;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
@@ -34,6 +42,8 @@ class MainApp extends StatelessWidget {
       home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
+
+
   }
 }
 
@@ -42,8 +52,6 @@ class HomePage extends StatefulWidget {
 
   @override
   createState() => _MyHomePageState();
-
-
 }
 
 class _MyHomePageState extends State<HomePage> {
@@ -111,14 +119,9 @@ class _MyHomePageState extends State<HomePage> {
       MemoryGame(),
     ];
 
-    return (MediaQuery.of(context).orientation == Orientation.portrait && MediaQuery.of(context).size.aspectRatio > 1.2)
+    return (MediaQuery.of(context).orientation == Orientation.portrait)
         ? Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            title: Image.asset("assets/logo.png", height: 70),
-          ),
+          appBar: CustomBar(),
           body: mainScreen[_selectedIndex],
 
           bottomNavigationBar: NavigationBar(
@@ -139,29 +142,25 @@ class _MyHomePageState extends State<HomePage> {
               NavigationDestination(icon: Icon(Icons.gamepad), label: 'Memory'),
             ],
           ),
+
+
+
+
+
+
+
+
         )
         : Scaffold(
-
-
-
-
-
-
-
-          appBar: AppBar(
-            centerTitle: true,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            title: Image.asset("assets/logo.png", height: 70),
-          ),
+          appBar: CustomBar(),
           body: Row(
             children: [
               NavigationRail(
-                groupAlignment: 0,
                 selectedIndex: _selectedIndex,
-                onDestinationSelected: _onItemTapped,
+                groupAlignment: 0,
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 indicatorColor: Theme.of(context).colorScheme.inversePrimary,
+                onDestinationSelected: _onItemTapped,
                 labelType: NavigationRailLabelType.all,
                 destinations: [
                   NavigationRailDestination(
@@ -182,9 +181,41 @@ class _MyHomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              Expanded(child: mainScreen[_selectedIndex])
+              const VerticalDivider(thickness: 1, width: 1, color: Colors.grey),
+              Expanded(child: mainScreen[_selectedIndex]),
             ],
           ),
         );
   }
+}
+
+//The logic for the AppBar was starting to become complicated, so this should make for a reusable modular component.
+class CustomBar extends StatelessWidget implements PreferredSizeWidget {
+  const CustomBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> actions = [
+      IconButton(icon: Icon(Icons.contrast), onPressed: () {}),
+    ];
+
+    if (auth.currentUser == null) {
+      actions.add(FilledButton(onPressed: () => {}, child: Text("Login")));
+      actions.add(
+        FilledButton.tonal(onPressed: () => {}, child: Text("Register")),
+      );
+    }
+    
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      actions: actions,
+      title: Image.asset("assets/logo.png", height: 70),
+      actionsPadding: EdgeInsets.all(8.0),
+      elevation: 10.0,
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }

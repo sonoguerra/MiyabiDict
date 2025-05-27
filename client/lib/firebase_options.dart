@@ -14,7 +14,7 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform {
+  static FirebaseOptions get platform {
     if (kIsWeb) {
       return web;
     }

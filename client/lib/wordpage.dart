@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:kana_kit/kana_kit.dart';
 
+import 'main.dart';
+
 class WordPage extends StatelessWidget {
   final Vocabulary displayed;
   final _kanaKit = const KanaKit();
@@ -13,12 +15,7 @@ class WordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        title: Image.asset("assets/logo.png", height: 70),
-      ),
+      appBar: CustomBar(),
       body: Padding(
         padding: EdgeInsets.fromLTRB(16.0, 8.0, 0, 0),
         //Using a ListView inside of a Column makes neither of them scrollable, so this allows for the screen to be scrolled and not overflow.
@@ -42,11 +39,11 @@ class WordPage extends StatelessWidget {
                                   .kana[0]
                                   .text //Displays the reading separately only if the reading doesn't already coincide with the actual word.
                           ? ""
-
-
                           : "【${displayed.kana[0].text}】",
                       style: GoogleFonts.shipporiMincho(
                         fontSize: 35.0,
+
+
                         color: Color.fromARGB(201, 0, 0, 0),
                       ),
                     ),
@@ -142,11 +139,11 @@ class WordPage extends StatelessWidget {
               ),
               ListView.builder(itemBuilder: (context, index) => Text("${index + 1}. ${displayed.forms[index]}"), itemCount: displayed.forms.length, shrinkWrap: true,)
             ],
-
-
           ),
         ),
       ),
+
+
     );
   }
 }
