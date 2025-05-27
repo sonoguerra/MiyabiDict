@@ -19,6 +19,14 @@ class Vocabulary {
 
   String get word => (kanjis.isNotEmpty && kanjis[0].common) ? kanjis[0].text : kana[0].text;
   String get mainReading => kana[0].text;
+  //TODO: reading for each of the forms
+  List<String> get forms {
+    List<String> res = [];
+    for (int i = 0; i < kanjis.length; i++) {
+      res.add(kanjis[i].text);
+    }
+    return res;
+  }
 
   List<String> listViewElements() => [word, (word == mainReading ? "" : mainReading), _compactGlosses()];
 
@@ -31,7 +39,6 @@ class Vocabulary {
   }
 
   factory Vocabulary.fromJson(Map<String, dynamic> json) => _$VocabularyFromJson(json);
-  
   Map<String, dynamic> toJson() => _$VocabularyToJson(this);
 
 }
@@ -93,7 +100,6 @@ class Language {
   Language(this.waseieigo, this.full, this.lang, this.text);
 
   factory Language.fromJson(Map<String, dynamic> json) => _$LanguageFromJson(json);
-  
   Map<String, dynamic> toJson() => _$LanguageToJson(this);
 }
 
@@ -136,5 +142,7 @@ class JSense {
   JSense(this.antonym, this.appliesToKanji, this.appliesToKana, this.dialect, this.subject, this.meaning, this.info, this.languageSource, this.misc, this.partOfSpeech, this.related);
 
   factory JSense.fromJson(Map<String, dynamic> json) => _$JSenseFromJson(json);
+
   Map<String, dynamic> toJson() => _$JSenseToJson(this);
+  
 }

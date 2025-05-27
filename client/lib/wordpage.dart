@@ -24,7 +24,7 @@ class WordPage extends StatelessWidget {
         //Using a ListView inside of a Column makes neither of them scrollable, so this allows for the screen to be scrolled and not overflow.
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 30.0,
             children: [
               Row(
@@ -111,14 +111,14 @@ class WordPage extends StatelessWidget {
                         Widget
                       >.generate(displayed.senses[index].related.length, (i) {
                         return Text(
-                          "see also: ${displayed.senses[index].related[i][0]}",
+                          "see also: ${displayed.senses[index].related[i][0]}", style: GoogleFonts.newsreader()
                         );
                       }),
                       ...List<Widget>.generate(
                         displayed.senses[index].antonym.length,
                         (i) {
                           return Text(
-                            "antonym: ${displayed.senses[index].antonym[i][0]}",
+                            "antonym: ${displayed.senses[index].antonym[i][0]}", style: GoogleFonts.newsreader()
                           );
                         },
                       ),
@@ -140,16 +140,13 @@ class WordPage extends StatelessWidget {
                 },
                 shrinkWrap: true,
               ),
+              ListView.builder(itemBuilder: (context, index) => Text("${index + 1}. ${displayed.forms[index]}"), itemCount: displayed.forms.length, shrinkWrap: true,)
             ],
+
+
           ),
         ),
       ),
-
-
-
-
-
-
     );
   }
 }
