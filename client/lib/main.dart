@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dictionary.dart';
-import 'memory.dart';
-import 'saved_words.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'saved_words.dart';
+import 'memory.dart';
+import 'dictionary.dart';
+import 'login.dart';
 
 var auth = FirebaseAuth.instance;
 
@@ -42,8 +42,6 @@ class MainApp extends StatelessWidget {
       home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
-
-
   }
 }
 
@@ -142,14 +140,6 @@ class _MyHomePageState extends State<HomePage> {
               NavigationDestination(icon: Icon(Icons.gamepad), label: 'Memory'),
             ],
           ),
-
-
-
-
-
-
-
-
         )
         : Scaffold(
           appBar: CustomBar(),
@@ -195,24 +185,33 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> actions = [
-      IconButton(icon: Icon(Icons.contrast), onPressed: () {}),
-    ];
-
-    if (auth.currentUser == null) {
-      actions.add(FilledButton(onPressed: () => {}, child: Text("Login")));
-      actions.add(
-        FilledButton.tonal(onPressed: () => {}, child: Text("Register")),
-      );
-    }
-    
-    return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-      actions: actions,
-      title: Image.asset("assets/logo.png", height: 70),
-      actionsPadding: EdgeInsets.all(8.0),
-      elevation: 10.0,
+    return StreamBuilder(
+      stream: auth.userChanges(),
+      builder: (context, snapshot) {
+        return AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          actions: [
+            IconButton(icon: Icon(Icons.contrast), onPressed: () {}),
+            snapshot.hasData
+                ? IconButton(
+                  icon: Icon(Icons.logout),
+                  onPressed: () async => await auth.signOut(),
+                )
+                : IconButton(
+                  icon: Icon(Icons.login),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  },
+                ),
+          ],
+          title: Image.asset("assets/logo.png", height: 70),
+          actionsPadding: EdgeInsets.all(8.0),
+          elevation: 10.0,
+        );
+      },
     );
   }
 

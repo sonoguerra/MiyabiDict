@@ -158,6 +158,10 @@ class AddVocab extends StatefulWidget {
 class _AddVocabState extends State<AddVocab> {
   bool toggled = false;
 
+  void denied() {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You need to be logged in to do that.")));
+  }
+
   void toggle() {
     setState(() {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -173,15 +177,16 @@ class _AddVocabState extends State<AddVocab> {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
+    return StreamBuilder(stream: auth.userChanges(), builder: (context, snapshot) {
+     return IconButton(
       icon:
           toggled
               ? Icon(Icons.bookmark)
               : Icon(Icons.bookmark_outline_outlined),
-      onPressed: toggle,
+      onPressed: snapshot.hasData ? toggle : denied,
     );
-  }
-}
+  });
+}}
 
 class BookmarkLabel extends StatelessWidget {
   final List<Widget> children;
