@@ -6,6 +6,8 @@ import 'saved_words.dart';
 import 'memory.dart';
 import 'dictionary.dart';
 import 'login.dart';
+import 'package:web/web.dart' as web;
+import 'database.dart';
 
 var auth = FirebaseAuth.instance;
 
@@ -193,6 +195,7 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
           actions: [
             IconButton(icon: Icon(Icons.contrast), onPressed: () {}),
+            IconButton(icon: Icon(Icons.settings), onPressed: () {Database.download();}),
             snapshot.hasData
                 ? IconButton(
                   icon: Icon(Icons.logout),
