@@ -16,6 +16,7 @@ dependencies:
   http: ^1.4.0
   json_annotation: ^4.9.0
   kana_kit: ^2.1.1
+  shared_preferences: ^2.5.3
   web: ^1.1.1
 
 dev_dependencies:
