@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'database.dart';
 import 'entry.dart';
 import 'wordpage.dart';
@@ -16,21 +17,31 @@ class _AsyncSearch extends StatefulWidget {
 }
 
 class _AsyncSearchState extends State<_AsyncSearch> {
-  // String? _query;
+  final Future<SharedPreferencesWithCache> _prefs = 
+      SharedPreferencesWithCache.create(cacheOptions: const SharedPreferencesWithCacheOptions());
   List<Vocabulary> _results = [];
-  final List<String> _prevQueries = [];
+  late List<String> _prevQueries;
   late final SearchController _sc;
 
   @override
   void initState() {
     super.initState();
     _sc = SearchController();
+    _loadList();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _sc.dispose();
+  /// Loads saved words list from cache
+  /// TODO: implement with auth
+  void _loadList() async {
+    final SharedPreferencesWithCache prefs = await _prefs;
+    _prevQueries = prefs.getStringList("saved_words") ?? [];
+  }
+
+  /// Saves previous queries in cache.
+  /// TODO: prefs.setStringList("saved_words" + uid, q);
+  void _saveResultInCache(List<String> q) async {
+    final SharedPreferencesWithCache prefs = await _prefs;
+    prefs.setStringList("saved_words", q);
   }
 
   //TODO
@@ -41,10 +52,19 @@ class _AsyncSearchState extends State<_AsyncSearch> {
       // _query = q;
       if (!_prevQueries.contains(q)) {
         _prevQueries.add(q);
+        _saveResultInCache(_prevQueries);
       }
       _results = fetchedRes;
     });
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _sc.closeView("");
+    _sc.dispose();
+    _saveResultInCache(_prevQueries);
+  } 
 
   @override
   Widget build(BuildContext context) {
