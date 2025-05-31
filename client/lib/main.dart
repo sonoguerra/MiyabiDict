@@ -42,6 +42,8 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       home: HomePage(),
+
+
       debugShowCheckedModeBanner: false,
     );
   }
@@ -139,6 +141,9 @@ class _MyHomePageState extends State<HomePage> {
                 icon: Icon(Icons.bookmark),
                 label: 'Memorizzate',
               ),
+
+
+              
               NavigationDestination(icon: Icon(Icons.gamepad), label: 'Memory'),
             ],
           ),
