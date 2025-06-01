@@ -42,6 +42,8 @@ class Database {
 
       request.onsuccess =
           ((Event event) {
+
+
             database = request.result as IDBDatabase;
             var databaseTransaction = database?.transaction("words".toJS);
             var req = databaseTransaction?.objectStore("words").getAll();
@@ -134,6 +136,14 @@ class Database {
           var obj = trn.objectStore("words");
 
           for (int i = 0; i < dictionary.length; i++) {
+
+
+
+
+
+
+
+
             /*
           There's a problem in how the two languages interpret this object:
           Techincally speaking jsonDecode should return an instance of Map<String, dynamic>,
