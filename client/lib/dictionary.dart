@@ -17,8 +17,10 @@ class _AsyncSearch extends StatefulWidget {
 }
 
 class _AsyncSearchState extends State<_AsyncSearch> {
-  final Future<SharedPreferencesWithCache> _prefs = 
-      SharedPreferencesWithCache.create(cacheOptions: const SharedPreferencesWithCacheOptions());
+  final Future<SharedPreferencesWithCache> _prefs =
+      SharedPreferencesWithCache.create(
+        cacheOptions: const SharedPreferencesWithCacheOptions(),
+      );
   List<Vocabulary> _results = [];
   late List<String> _prevQueries;
   late final SearchController _sc;
@@ -57,7 +59,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
         }
         _results = fetchedRes;
       });
-    } 
+    }
   }
 
   @override
@@ -66,7 +68,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
     _sc.closeView("");
     _sc.dispose();
     _saveResultInCache(_prevQueries);
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,29 +84,24 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                   onPressed: () {
                     final currentQuery = _sc.text;
                     if (currentQuery.isNotEmpty) {
-                      _performSearch(currentQuery, );
+                      _performSearch(currentQuery);
                     }
                   },
                 ),
                 trailing: <Widget>[
                   SegmentedButton(
                     segments: const <ButtonSegment>[
-                      ButtonSegment(
-                        value: false,
-                        label: Text("🇬🇧")
-                      ),
-                      ButtonSegment(
-                        value: true,
-                        label: Text("🇯🇵")
-                      )
-                    ], 
+                      ButtonSegment(value: false, label: Text("🇯🇵")),
+                      ButtonSegment(value: true, label: Text("🇬🇧")),
+                    ],
                     selected: {english},
                     onSelectionChanged: (value) {
                       setState(() {
                         english = value.first;
                       });
                     },
-                  )
+                    showSelectedIcon: false,
+                  ),
                 ],
                 controller: _sc,
                 onSubmitted: (value) {
@@ -117,7 +114,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                   if (_prevQueries.isNotEmpty) {
                     _sc.openView();
                   }
-                }
+                },
               );
             },
             searchController: _sc,
