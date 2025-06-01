@@ -1,8 +1,0 @@
-#Directories
-node_modules/
-jmdict_db/
-
-#Files
-jmdictcommon.json
-jmdicten.json
-config.json

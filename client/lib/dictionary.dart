@@ -22,6 +22,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   List<Vocabulary> _results = [];
   late List<String> _prevQueries;
   late final SearchController _sc;
+  late bool english = false;
 
   @override
   void initState() {
@@ -46,16 +47,17 @@ class _AsyncSearchState extends State<_AsyncSearch> {
 
   //TODO
   Future<void> _performSearch(String q) async {
-    final fetchedRes = await Database.search(q);
+    final fetchedRes = await Database.search(q, english: english);
 
-    setState(() {
-      // _query = q;
-      if (!_prevQueries.contains(q)) {
-        _prevQueries.add(q);
-        _saveResultInCache(_prevQueries);
-      }
-      _results = fetchedRes;
-    });
+    if (fetchedRes.isNotEmpty) {
+      setState(() {
+        if (!_prevQueries.contains(q)) {
+          _prevQueries.add(q);
+          _saveResultInCache(_prevQueries);
+        }
+        _results = fetchedRes;
+      });
+    } 
   }
 
   @override
@@ -80,10 +82,30 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                   onPressed: () {
                     final currentQuery = _sc.text;
                     if (currentQuery.isNotEmpty) {
-                      _performSearch(currentQuery);
+                      _performSearch(currentQuery, );
                     }
                   },
                 ),
+                trailing: <Widget>[
+                  SegmentedButton(
+                    segments: const <ButtonSegment>[
+                      ButtonSegment(
+                        value: false,
+                        label: Text("🇬🇧")
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        label: Text("🇯🇵")
+                      )
+                    ], 
+                    selected: {english},
+                    onSelectionChanged: (value) {
+                      setState(() {
+                        english = value.first;
+                      });
+                    },
+                  )
+                ],
                 controller: _sc,
                 onSubmitted: (value) {
                   if (value.isNotEmpty) {
@@ -95,7 +117,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                   if (_prevQueries.isNotEmpty) {
                     _sc.openView();
                   }
-                },
+                }
               );
             },
             searchController: _sc,
