@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "A simple REST server for the dictionary app.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonoguerra/pwa_dict.git"
+  },
+  "author": "Davide Pinzan, Thomas Guerra, Damiano Coletto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sonoguerra/pwa_dict/issues"
+  },
+  "homepage": "https://github.com/sonoguerra/pwa_dict#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "firebase": "^11.6.1"
+  }
+}
