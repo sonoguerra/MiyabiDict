@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'database.dart';
 import 'entry.dart';
 import 'wordpage.dart';
@@ -16,34 +17,57 @@ class _AsyncSearch extends StatefulWidget {
 }
 
 class _AsyncSearchState extends State<_AsyncSearch> {
-  // String? _query;
+  final Future<SharedPreferencesWithCache> _prefs =
+      SharedPreferencesWithCache.create(
+        cacheOptions: const SharedPreferencesWithCacheOptions(),
+      );
   List<Vocabulary> _results = [];
-  final List<String> _prevQueries = [];
+  late List<String> _prevQueries;
   late final SearchController _sc;
+  late bool english = false;
 
   @override
   void initState() {
     super.initState();
     _sc = SearchController();
+    _loadList();
+  }
+
+  /// Loads saved words list from cache
+  /// TODO: implement with auth
+  void _loadList() async {
+    final SharedPreferencesWithCache prefs = await _prefs;
+    _prevQueries = prefs.getStringList("saved_words") ?? [];
+  }
+
+  /// Saves previous queries in cache.
+  /// TODO: prefs.setStringList("saved_words" + uid, q);
+  void _saveResultInCache(List<String> q) async {
+    final SharedPreferencesWithCache prefs = await _prefs;
+    prefs.setStringList("saved_words", q);
+  }
+
+  //TODO
+  Future<void> _performSearch(String q) async {
+    final fetchedRes = await Database.search(q, english: english);
+
+    if (fetchedRes.isNotEmpty) {
+      setState(() {
+        if (!_prevQueries.contains(q)) {
+          _prevQueries.add(q);
+          _saveResultInCache(_prevQueries);
+        }
+        _results = fetchedRes;
+      });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    _sc.closeView("");
     _sc.dispose();
-  }
-
-  //TODO
-  Future<void> _performSearch(String q) async {
-    final fetchedRes = await Database.search(q);
-
-    setState(() {
-      // _query = q;
-      if (!_prevQueries.contains(q)) {
-        _prevQueries.add(q);
-      }
-      _results = fetchedRes;
-    });
+    _saveResultInCache(_prevQueries);
   }
 
   @override
@@ -64,6 +88,21 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                     }
                   },
                 ),
+                trailing: <Widget>[
+                  SegmentedButton(
+                    segments: const <ButtonSegment>[
+                      ButtonSegment(value: false, label: Text("🇯🇵")),
+                      ButtonSegment(value: true, label: Text("🇬🇧")),
+                    ],
+                    selected: {english},
+                    onSelectionChanged: (value) {
+                      setState(() {
+                        english = value.first;
+                      });
+                    },
+                    showSelectedIcon: false,
+                  ),
+                ],
                 controller: _sc,
                 onSubmitted: (value) {
                   if (value.isNotEmpty) {

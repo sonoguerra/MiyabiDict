@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SavedWords extends StatefulWidget {
@@ -20,29 +21,49 @@ class _SavedWordsState extends State<SavedWords> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: words.length,
-      itemBuilder: (context, index) {
-        return _HoverIconButton(index: index, onChanged: _handleTileDeleted, text: words[index]);
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.idTokenChanges(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Text("You need to be logged in to do that.");
+        } else if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: words.length,
+            itemBuilder: (context, index) {
+              return _HoverIconButton(
+                index: index,
+                onChanged: _handleTileDeleted,
+                text: words[index],
+              );
+            },
+          );
+        } else {
+          return Text("There was an error."); //TODO
+        }
       },
     );
   }
 }
 
 class _HoverIconButton extends StatefulWidget {
-  const _HoverIconButton({super.key, required this.index, required this.onChanged, required this.text});
+  const _HoverIconButton({
+    super.key,
+    required this.index,
+    required this.onChanged,
+    required this.text,
+  });
 
   final int index;
   final ValueChanged<int> onChanged;
   final String text;
-  
+
   @override
   State<StatefulWidget> createState() => _HoverIconButtonState();
 }
 
 class _HoverIconButtonState extends State<_HoverIconButton> {
   bool _isHovered = false;
-  
+
   void _handleTap() {
     widget.onChanged(widget.index);
   }
