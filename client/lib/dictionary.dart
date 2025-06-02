@@ -159,7 +159,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                     MaterialPageRoute(
                       builder:
                           (context) => WordPage(
-                            displayed: _results[index],
+                            _results[index],
                           ), // wrong implementation
                     ),
                   );

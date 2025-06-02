@@ -1,16 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'entry.dart';
 import 'package:flutter/material.dart';
+
 import 'package:google_fonts/google_fonts.dart';
-
-import 'package:kana_kit/kana_kit.dart';
-
 import 'main.dart';
+import 'package:kana_kit/kana_kit.dart';
 
 class WordPage extends StatelessWidget {
   final Vocabulary displayed;
   final _kanaKit = const KanaKit();
 
-  const WordPage({super.key, required this.displayed});
+  const WordPage(this.displayed, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +43,12 @@ class WordPage extends StatelessWidget {
                       style: GoogleFonts.shipporiMincho(
                         fontSize: 35.0,
 
-
+                        
                         color: Color.fromARGB(201, 0, 0, 0),
                       ),
                     ),
                   ),
-                  AddVocab(),
+                  AddVocab(displayed),
                 ],
               ),
               ListView.separated(
@@ -108,14 +108,16 @@ class WordPage extends StatelessWidget {
                         Widget
                       >.generate(displayed.senses[index].related.length, (i) {
                         return Text(
-                          "see also: ${displayed.senses[index].related[i][0]}", style: GoogleFonts.newsreader()
+                          "see also: ${displayed.senses[index].related[i][0]}",
+                          style: GoogleFonts.newsreader(),
                         );
                       }),
                       ...List<Widget>.generate(
                         displayed.senses[index].antonym.length,
                         (i) {
                           return Text(
-                            "antonym: ${displayed.senses[index].antonym[i][0]}", style: GoogleFonts.newsreader()
+                            "antonym: ${displayed.senses[index].antonym[i][0]}",
+                            style: GoogleFonts.newsreader(),
                           );
                         },
                       ),
@@ -137,61 +139,114 @@ class WordPage extends StatelessWidget {
                 },
                 shrinkWrap: true,
               ),
-              ListView.builder(itemBuilder: (context, index) => Text("${index + 1}. ${displayed.forms[index]}"), itemCount: displayed.forms.length, shrinkWrap: true,)
+              ListView.builder(
+                itemBuilder:
+                    (context, index) =>
+
+
+                        Text("${index + 1}. ${displayed.forms[index]}"),
+                itemCount: displayed.forms.length,
+                shrinkWrap: true,
+              ),
             ],
           ),
         ),
       ),
-
-
     );
   }
 }
 
 class AddVocab extends StatefulWidget {
-  const AddVocab({super.key});
+  final Vocabulary displayed;
+
+  const AddVocab(this.displayed, {super.key});
 
   @override
-  State<AddVocab> createState() => _AddVocabState();
+  State<AddVocab> createState() => _AddVocabState(displayed);
 }
 
 class _AddVocabState extends State<AddVocab> {
+  final database = FirebaseFirestore.instance;
   bool toggled = false;
+  final Vocabulary displayed;
+
+  _AddVocabState(this.displayed);
 
   void denied() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You need to be logged in to do that.")));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("You need to be logged in to do that.")),
+    );
   }
 
-  void toggle() {
-    setState(() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            toggled ? "Removed from collection" : "Added to collection.",
-          ),
+  void manage() async {
+    if (auth.currentUser != null) {
+      var elements = displayed.listViewElements();
+      var document = database.collection("saved").doc(auth.currentUser!.uid);
+      await document.get().then((item) {
+        var object = {
+          "id": displayed.id,
+          "kanji": elements[0],
+          "reading": elements[1],
+          "sense": elements[2],
+        };
+        if (toggled) {
+          document.update({
+            "saved": FieldValue.arrayRemove([object]),
+          });
+        } else {
+          if (item.exists) {
+            document.update({
+              "saved": FieldValue.arrayUnion([object]),
+            });
+          } else {
+            document.set({
+              "saved": [object],
+            });
+          }
+        }
+      });
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          toggled ? "Removed from collection" : "Added to collection.",
         ),
-      );
+      ),
+    );
+    setState(() {
       toggled = !toggled;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(stream: auth.userChanges(), builder: (context, snapshot) {
-     return IconButton(
-      icon:
-          toggled
-              ? Icon(Icons.bookmark)
-              : Icon(Icons.bookmark_outline_outlined),
-      onPressed: snapshot.hasData ? toggle : denied,
+    return StreamBuilder(
+      stream: auth.userChanges(),
+      builder: (context, snapshot) {
+        return IconButton(
+          icon:
+              toggled
+                  ? Icon(Icons.bookmark)
+                  : Icon(Icons.bookmark_outline_outlined),
+          onPressed: snapshot.hasData ? manage : denied,
+        );
+      },
     );
-  });
-}}
+  }
+}
 
 class BookmarkLabel extends StatelessWidget {
   final List<Widget> children;
 
   const BookmarkLabel({super.key, required this.children});
+
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
