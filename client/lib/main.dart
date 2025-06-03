@@ -43,7 +43,7 @@ class MainApp extends StatelessWidget {
       ),
       home: HomePage(),
 
-
+      
       debugShowCheckedModeBanner: false,
     );
   }
@@ -141,9 +141,13 @@ class _MyHomePageState extends State<HomePage> {
                 icon: Icon(Icons.bookmark),
                 label: 'Memorizzate',
               ),
-
-
-              
+            
+            
+            
+            
+            
+            
+            
               NavigationDestination(icon: Icon(Icons.gamepad), label: 'Memory'),
             ],
           ),
@@ -200,11 +204,26 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
           actions: [
             IconButton(icon: Icon(Icons.contrast), onPressed: () {}),
-            IconButton(icon: Icon(Icons.settings), onPressed: () {Database.download();}),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => SettingsDialog(),
+                );
+              },
+            ),
             snapshot.hasData
                 ? IconButton(
                   icon: Icon(Icons.logout),
-                  onPressed: () async => await auth.signOut(),
+                  onPressed: () async {
+                    await auth.signOut();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text("Signed out.")));
+                    }
+                  },
                 )
                 : IconButton(
                   icon: Icon(Icons.login),
@@ -223,6 +242,70 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+
+
+
+
+
+
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
+}
+
+class SettingsDialog extends StatefulWidget {
+  const SettingsDialog({super.key});
+
+  @override
+  State<SettingsDialog> createState() => _SettingsDialogState();
+}
+
+class _SettingsDialogState extends State<SettingsDialog> {
+  bool _toggled = false;
+  late Future<bool> _installed;
+
+  @override
+  void initState() {
+    _installed = Database.isDatabaseInstalled();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      children: [
+        Row(
+          children: [
+            Text("Download dictionary"),
+            FutureBuilder(
+              future: _installed,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  if (true == snapshot.data) {  //The compiler gives an error if this condition isn't written explicitly.
+                    return IconButton(
+                      icon: Icon(Icons.download),
+                      onPressed: () => {},
+                    );
+                  }
+                  else {
+                    return IconButton(icon: Icon(Icons.delete), onPressed: () => {});
+                  }
+                }
+                else {
+                    return CircularProgressIndicator();
+                  }
+              },
+            ),
+          ],
+        ),
+        SwitchListTile(
+          title: Text("Use locally installed dictionary as default."),
+          subtitle: Text(
+            "Enabling this option is recommended in case of slow internet speed or if you're using mobile data. Not recommended with slow or older devices.",
+          ),
+          value: _toggled,
+          onChanged: (value) => setState(() => _toggled = !_toggled),
+        ),
+      ],
+    );
+  }
 }

@@ -34,7 +34,7 @@ class Database {
               ? Uri.https(_domain, "/search/reading/$q")
               : Uri.https(_domain, "/search/kanji/$q");
     }
-
+    //TODO: preferences
     if (!window.navigator.onLine) {
       print("offline");
       IDBDatabase? database;
@@ -168,5 +168,16 @@ class Database {
         ((Event event) {
           print("Database error.");
         }).toJS;
+  }
+
+  //Basic method for detecting installation of the database; doesn't check if all data is intact.
+  static Future<bool> isDatabaseInstalled() async {
+    var databases = await window.indexedDB.databases().toDart;
+    for (int i = 0; i < databases.length; i++) {
+      if (databases[i].name == "vocabulary") {
+        return true;
+      }
+    }
+    return false;  
   }
 }
