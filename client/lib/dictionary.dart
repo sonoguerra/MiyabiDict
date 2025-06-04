@@ -66,7 +66,6 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   @override
   void dispose() {
     super.dispose();
-    _sc.closeView("");
     _sc.dispose();
     _saveResultInCache(_prevQueries);
   }
