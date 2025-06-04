@@ -17,6 +17,7 @@ class _AsyncSearch extends StatefulWidget {
 }
 
 class _AsyncSearchState extends State<_AsyncSearch> {
+  // shared_preferences package instance variable for saving in cache
   final Future<SharedPreferencesWithCache> _prefs =
       SharedPreferencesWithCache.create(
         cacheOptions: const SharedPreferencesWithCacheOptions(),
@@ -24,8 +25,9 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   List<Vocabulary> _results = [];
   late List<String> _prevQueries;
   late final SearchController _sc;
-  late bool english = false;
+  late bool _english = false;
 
+  // TODO: check if _loadList works correctly when switching pages
   @override
   void initState() {
     super.initState();
@@ -33,23 +35,22 @@ class _AsyncSearchState extends State<_AsyncSearch> {
     _loadList();
   }
 
-  /// Loads saved words list from cache
-  /// TODO: implement with auth
+  // Loads saved words list from cache
+  // TODO: implement with auth
   void _loadList() async {
     final SharedPreferencesWithCache prefs = await _prefs;
     _prevQueries = prefs.getStringList("saved_words") ?? [];
   }
 
-  /// Saves previous queries in cache.
-  /// TODO: prefs.setStringList("saved_words" + uid, q);
+  // Saves previous queries in cache.
+  // TODO: prefs.setStringList("saved_words" + uid, q);
   void _saveResultInCache(List<String> q) async {
     final SharedPreferencesWithCache prefs = await _prefs;
     prefs.setStringList("saved_words", q);
   }
 
-  //TODO
   Future<void> _performSearch(String q) async {
-    final fetchedRes = await Database.search(q, english: english);
+    final fetchedRes = await Database.search(q, english: _english);
 
     if (fetchedRes.isNotEmpty) {
       setState(() {
@@ -94,10 +95,10 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                       ButtonSegment(value: false, label: Text("🇯🇵")),
                       ButtonSegment(value: true, label: Text("🇬🇧")),
                     ],
-                    selected: {english},
+                    selected: {_english},
                     onSelectionChanged: (value) {
                       setState(() {
-                        english = value.first;
+                        _english = value.first;
                       });
                     },
                     showSelectedIcon: false,
@@ -134,6 +135,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
             },
           ),
         ),
+        // TODO: verify if there are alternatives
         Expanded(
           child: ListView.builder(
             shrinkWrap: true,
@@ -160,7 +162,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                       builder:
                           (context) => WordPage(
                             _results[index],
-                          ), // wrong implementation
+                          ),
                     ),
                   );
                 },
