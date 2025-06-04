@@ -15,102 +15,7 @@ class Database {
   static const _kanaKit = KanaKit();
   static const _domain = "miyabiserver.onrender.com";
 
-  static Future<List<Vocabulary>> search(
-    String q, {
-    bool english = false,
-  }) async {
-    List<Vocabulary> result = [];
-    Uri resource;
-    final Completer<List<Vocabulary>> completer = Completer();
-
-    if (english) {
-      resource = Uri.https(_domain, "/search/english/$q");
-    } else {
-      if (_kanaKit.isRomaji(q)) {
-        q = _kanaKit.toKana(q);
-      }
-      resource =
-          _kanaKit.isKana(q)
-              ? Uri.https(_domain, "/search/reading/$q")
-              : Uri.https(_domain, "/search/kanji/$q");
-    }
-    //TODO: preferences
-    if (!window.navigator.onLine) {
-      print("offline");
-      IDBDatabase? database;
-      var request = window.indexedDB.open("vocabulary", 1);
-
-      request.onsuccess =
-          ((Event event) {
-
-
-            database = request.result as IDBDatabase;
-            var databaseTransaction = database?.transaction("words".toJS);
-            var req = databaseTransaction?.objectStore("words").getAll();
-
-            req?.onsuccess =
-                ((Event event) {
-                  var res = (req.result as JSArray).toDart;
-
-                  for (int i = 0; i < res.length; i++) {
-                    //Another very convoluted line for type conversion between Dart and JS. See download().
-                    var vocab = Vocabulary.fromJson(
-                      jsonDecode(stringify(res[i])),
-                    );
-                    if (_kanaKit.isKana(q)) {
-                      //Since we cannot infer anything about the order in which the words are stored (multiple readings) the search algorithm has to be naive and Theta(n).
-                      for (int j = 0; j < vocab.kana.length; j++) {
-                        if (vocab.kana[j].text.startsWith(q)) {
-                          result.add(vocab);
-                          break;
-                        }
-                      }
-                    } else if (english) {
-                      var found = false;
-                      for (int j = 0; j < vocab.senses.length && !found; j++) {
-                        for (
-                          int k = 0;
-                          k < vocab.senses[j].meaning.length && !found;
-                          k++
-                        ) {
-                          var meaning =
-                              vocab.senses[j].meaning[k].text.toLowerCase();
-                          if (meaning.split(' ').contains(q)) {
-                            result.add(vocab);
-                            found = true;
-                          }
-                        }
-                      }
-                    } else {
-                      for (int j = 0; j < vocab.kanjis.length; j++) {
-                        if (vocab.kanjis[j].text.startsWith(q)) {
-                          result.add(vocab);
-                          break;
-                        }
-                      }
-                    }
-                  }
-
-                  // Compatibility between async dart and event based js
-                  completer.complete(result);
-                }).toJS;
-          }).toJS;
-
-          return completer.future;
-    } else {
-      print("online");
-      var response = await http.get(resource);
-      var partial = jsonDecode(response.body)['words'];
-
-      for (int i = 0; i < partial.length; i++) {
-        result.add(Vocabulary.fromJson(partial[i]));
-      }
-
-      return result;
-    }
-  }
-
-  //TODO: Managing errors
+    //TODO: Managing errors
   static Future download() async {
     IDBDatabase? database;
     Uri resource = Uri.https(_domain, "/dictionary/common");
@@ -184,5 +89,107 @@ class Database {
   static void delete() {
     var idbFactory = window.indexedDB;
     idbFactory.deleteDatabase("vocabulary");
+  }
+
+  static Future<List<Vocabulary>> search(
+    String q, {
+    bool english = false,
+  }) async {
+    List<Vocabulary> result = [];
+    Uri resource;
+    final Completer<List<Vocabulary>> completer = Completer();
+
+    if (english) {
+      resource = Uri.https(_domain, "/search/english/$q");
+    } else {
+      if (_kanaKit.isRomaji(q)) {
+        q = _kanaKit.toKana(q);
+      }
+      resource =
+          _kanaKit.isKana(q)
+              ? Uri.https(_domain, "/search/reading/$q")
+              : Uri.https(_domain, "/search/kanji/$q");
+    }
+    //TODO: preferences
+    if (!window.navigator.onLine) {
+      print("offline");
+      IDBDatabase? database;
+      var request = window.indexedDB.open("vocabulary", 1);
+
+      request.onsuccess =
+          ((Event event) {
+
+
+            database = request.result as IDBDatabase;
+            var databaseTransaction = database?.transaction("words".toJS);
+            var req = databaseTransaction?.objectStore("words").getAll();
+
+            req?.onsuccess =
+                ((Event event) {
+                  var res = (req.result as JSArray).toDart;
+
+                  for (int i = 0; i < res.length; i++) {
+                    //Another very convoluted line for type conversion between Dart and JS. See download().
+                    var vocab = Vocabulary.fromJson(
+                      jsonDecode(stringify(res[i])),
+                    );
+                    if (_kanaKit.isKana(q)) {
+                      //Since we cannot infer anything about the order in which the words are stored (multiple readings) the search algorithm has to be naive and Theta(n).
+                      for (int j = 0; j < vocab.kana.length; j++) {
+                        if (vocab.kana[j].text.startsWith(q)) {
+                          result.add(vocab);
+                          break;
+                        }
+                      }
+
+
+
+
+
+
+                      
+                    } else if (english) {
+                      var found = false;
+                      for (int j = 0; j < vocab.senses.length && !found; j++) {
+                        for (
+                          int k = 0;
+                          k < vocab.senses[j].meaning.length && !found;
+                          k++
+                        ) {
+                          var meaning =
+                              vocab.senses[j].meaning[k].text.toLowerCase();
+                          if (meaning.split(' ').contains(q)) {
+                            result.add(vocab);
+                            found = true;
+                          }
+                        }
+                      }
+                    } else {
+                      for (int j = 0; j < vocab.kanjis.length; j++) {
+                        if (vocab.kanjis[j].text.startsWith(q)) {
+                          result.add(vocab);
+                          break;
+                        }
+                      }
+                    }
+                  }
+
+                  // Compatibility between async dart and event based js
+                  completer.complete(result);
+                }).toJS;
+          }).toJS;
+
+          return completer.future;
+    } else {
+      print("online");
+      var response = await http.get(resource);
+      var partial = jsonDecode(response.body)['words'];
+
+      for (int i = 0; i < partial.length; i++) {
+        result.add(Vocabulary.fromJson(partial[i]));
+      }
+
+      return result;
+    }
   }
 }
