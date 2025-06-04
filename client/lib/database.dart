@@ -180,4 +180,9 @@ class Database {
     }
     return false;  
   }
+
+  static void delete() {
+    var idbFactory = window.indexedDB;
+    idbFactory.deleteDatabase("vocabulary");
+  }
 }

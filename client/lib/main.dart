@@ -282,12 +282,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 if (snapshot.hasData) {
                   if (true == snapshot.data) {  //The compiler gives an error if this condition isn't written explicitly.
                     return IconButton(
-                      icon: Icon(Icons.download),
-                      onPressed: () => {},
+                      icon: Icon(Icons.delete),
+                      onPressed: () {Database.delete();},
                     );
                   }
                   else {
-                    return IconButton(icon: Icon(Icons.delete), onPressed: () => {});
+                    return IconButton(icon: Icon(Icons.download), onPressed: () {Database.download();});
                   }
                 }
                 else {
