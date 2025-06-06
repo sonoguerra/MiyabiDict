@@ -262,11 +262,34 @@ class SettingsDialog extends StatefulWidget {
 class _SettingsDialogState extends State<SettingsDialog> {
   bool _toggled = false;
   late Future<bool> _installed;
+  bool _loading = false;
 
   @override
   void initState() {
     _installed = Database.isDatabaseInstalled();
     super.initState();
+  }
+
+  void delete() async {
+    setState(() {
+      _loading = true;  //Display loading
+      _installed = Database.delete();
+    });
+    await _installed; //Wait for the deletion to be completed
+    setState(() {
+      _loading = false; //Display normal icon
+    });
+  }
+
+  void install() async {
+    setState(() {
+      _loading = true;  //Display loading
+      _installed = Database.download();
+    });
+    await _installed; //Wait for the installation to be completed
+    setState(() {
+      _loading = false; //Display normal icon
+    });
   }
 
   @override
@@ -281,13 +304,23 @@ class _SettingsDialogState extends State<SettingsDialog> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   if (true == snapshot.data) {  //The compiler gives an error if this condition isn't written explicitly.
-                    return IconButton(
+                    if (_loading) {
+                      return CircularProgressIndicator();
+                    }
+                    else {
+                      return IconButton(
                       icon: Icon(Icons.delete),
-                      onPressed: () {Database.delete();},
+                      onPressed: delete,
                     );
+                    }
                   }
                   else {
-                    return IconButton(icon: Icon(Icons.download), onPressed: () {Database.download();});
+                    if (_loading) {
+                      return CircularProgressIndicator();
+                    }
+                    else {
+                      return IconButton(icon: Icon(Icons.download), onPressed: install);
+                    }
                   }
                 }
                 else {

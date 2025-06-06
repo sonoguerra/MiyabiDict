@@ -15,10 +15,11 @@ class Database {
   static const _kanaKit = KanaKit();
   static const _domain = "miyabiserver.onrender.com";
 
-    //TODO: Managing errors
-  static Future download() async {
+  //TODO: Managing errors
+  static Future<bool> download() async {
     IDBDatabase? database;
     Uri resource = Uri.https(_domain, "/dictionary/common");
+    Completer<bool> completer = Completer();
 
     var response = await http.get(resource);
     var dictionary = jsonDecode(response.body)['words'];
@@ -27,6 +28,7 @@ class Database {
     request.onerror =
         ((Event event) {
           print("No permission to create an IndexedDB.");
+          completer.completeError(request.error.toString());
         }).toJS;
 
     request.onupgradeneeded =
@@ -41,14 +43,6 @@ class Database {
           var obj = trn.objectStore("words");
 
           for (int i = 0; i < dictionary.length; i++) {
-
-
-
-
-
-
-
-
             /*
           There's a problem in how the two languages interpret this object:
           Techincally speaking jsonDecode should return an instance of Map<String, dynamic>,
@@ -62,9 +56,14 @@ class Database {
             var r = obj.put(vocab.jsify());
           }
 
+          trn.onerror =
+              ((Event event) {
+                completer.complete(false);
+              }).toJS;
+
           trn.oncomplete =
               ((Event event) {
-                //TODO?
+                completer.complete(true);
               }).toJS;
         }).toJS;
 
@@ -73,6 +72,8 @@ class Database {
         ((Event event) {
           print("Database error.");
         }).toJS;
+
+    return completer.future;
   }
 
   //Basic method for detecting installation of the database; doesn't check if all data is intact.
@@ -83,12 +84,7 @@ class Database {
         return true;
       }
     }
-    return false;  
-  }
-
-  static void delete() {
-    var idbFactory = window.indexedDB;
-    idbFactory.deleteDatabase("vocabulary");
+    return false;
   }
 
   static Future<List<Vocabulary>> search(
@@ -118,8 +114,6 @@ class Database {
 
       request.onsuccess =
           ((Event event) {
-
-
             database = request.result as IDBDatabase;
             var databaseTransaction = database?.transaction("words".toJS);
             var req = databaseTransaction?.objectStore("words").getAll();
@@ -141,13 +135,6 @@ class Database {
                           break;
                         }
                       }
-
-
-
-
-
-
-                      
                     } else if (english) {
                       var found = false;
                       for (int j = 0; j < vocab.senses.length && !found; j++) {
@@ -179,7 +166,7 @@ class Database {
                 }).toJS;
           }).toJS;
 
-          return completer.future;
+      return completer.future;
     } else {
       print("online");
       var response = await http.get(resource);
@@ -191,5 +178,24 @@ class Database {
 
       return result;
     }
+  }
+
+  //Returns false if the database is not installed anymore (deleted)
+  static Future<bool> delete() {
+    Completer<bool> completer = Completer();
+    var idbFactory = window.indexedDB;
+    var deletion = idbFactory.deleteDatabase("vocabulary");
+
+    deletion.onsuccess =
+        ((Event event) {
+          completer.complete(false);
+        }).toJS;
+
+    deletion.onerror =
+        ((Event event) {
+          completer.completeError(true);
+        }).toJS;
+
+    return completer.future;
   }
 }

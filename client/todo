@@ -1,0 +1,12 @@
+[ ] Aggiungere il get degli id e dei tag nel server
+[ ] Aggiungere il salvataggio locale dei tag
+[X] Fare in modo che download() e delete() del database ritornino dei Future<bool>
+
+[ ] Implementare light e dark UI mode
+[ ] Aggiungere la shared preference per usare il dizionario locale di default
+[ ] Fare in modo che WordPage sappia le parole salvate
+[ ] Sistemare pagina di login e aggiungere la registrazione
+[ ] Rendere le parole salvate visualizzabili anche offline
+[ ] Fare in modo che si capisca meglio se si è loggati o meno
+[ ] Compliance con licenses
+[ ] Scaricare i font
