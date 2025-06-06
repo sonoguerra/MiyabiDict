@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pwa_dict/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database.dart';
 import 'entry.dart';
@@ -22,6 +24,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
       SharedPreferencesWithCache.create(
         cacheOptions: const SharedPreferencesWithCacheOptions(),
       );
+  final _db = FirebaseFirestore.instance;
   List<Vocabulary> _results = [];
   late List<String> _prevQueries;
   late final SearchController _sc;
@@ -39,14 +42,27 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   // TODO: implement with auth
   void _loadList() async {
     final SharedPreferencesWithCache prefs = await _prefs;
-    _prevQueries = prefs.getStringList("saved_words") ?? [];
+
+    _prevQueries = prefs.getStringList("history") ?? [];
+
+    if (auth.currentUser != null) {
+      var res = await _db.collection("history").doc(auth.currentUser?.uid).get();
+      _prevQueries = (res.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+    }
   }
 
   // Saves previous queries in cache.
-  // TODO: prefs.setStringList("saved_words" + uid, q);
+  // TODO: prefs.setStringList("history" + uid, q);
   void _saveResultInCache(List<String> q) async {
     final SharedPreferencesWithCache prefs = await _prefs;
-    prefs.setStringList("saved_words", q);
+    prefs.setStringList("history", q);
+  }
+
+  void _saveResultInFirebase(String q) async {
+    final document = _db.collection("history").doc(auth.currentUser!.uid);
+    await document.get().then((value) {
+      document.update({"saved_res" : FieldValue.arrayUnion([q])});
+    });
   }
 
   Future<void> _performSearch(String q) async {
@@ -54,9 +70,15 @@ class _AsyncSearchState extends State<_AsyncSearch> {
 
     if (fetchedRes.isNotEmpty) {
       setState(() {
-        if (!_prevQueries.contains(q)) {
+        if (!_prevQueries.contains(q)) { //possible null exception??
           _prevQueries.add(q);
-          _saveResultInCache(_prevQueries);
+          
+          if (auth.currentUser == null) {
+            _saveResultInCache(_prevQueries);
+          }
+          else {
+            _saveResultInFirebase(q);
+          }
         }
         _results = fetchedRes;
       });
