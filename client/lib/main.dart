@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'saved_words.dart';
 import 'memory.dart';
@@ -12,6 +15,11 @@ import 'database.dart';
 var auth = FirebaseAuth.instance;
 
 void main() async {
+  GoogleFonts.config.allowRuntimeFetching = false;
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
   runApp(MainApp());
@@ -34,6 +42,8 @@ class MainApp extends StatelessWidget {
           onPrimary: Colors.black,
           secondary: Color.fromARGB(255, 122, 239, 239),
           onSecondary: Colors.grey,
+
+
           error: Colors.yellow,
           onError: Colors.red,
           surface: Colors.white,
@@ -43,7 +53,6 @@ class MainApp extends StatelessWidget {
       ),
       home: HomePage(),
 
-      
       debugShowCheckedModeBanner: false,
     );
   }
@@ -58,6 +67,17 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  late Future _pendingFonts;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingFonts = GoogleFonts.pendingFonts([
+      GoogleFonts.shipporiMincho(),
+      GoogleFonts.ebGaramond(),
+      GoogleFonts.notoSansJp(),
+    ]);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -121,72 +141,89 @@ class _MyHomePageState extends State<HomePage> {
       MemoryGame(),
     ];
 
-    return (MediaQuery.of(context).orientation == Orientation.portrait)
-        ? Scaffold(
-          appBar: CustomBar(),
-          body: mainScreen[_selectedIndex],
+    var scaffold =
 
-          bottomNavigationBar: NavigationBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            indicatorColor: Theme.of(context).colorScheme.inversePrimary,
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: _onItemTapped,
-            destinations: [
-              NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-              NavigationDestination(
-                icon: Icon(Icons.book),
-                label: 'Dizionario',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.bookmark),
-                label: 'Memorizzate',
-              ),
-            
-            
-            
-            
-            
-            
-            
-              NavigationDestination(icon: Icon(Icons.gamepad), label: 'Memory'),
-            ],
-          ),
-        )
-        : Scaffold(
-          appBar: CustomBar(),
-          body: Row(
-            children: [
-              NavigationRail(
-                selectedIndex: _selectedIndex,
-                groupAlignment: 0,
+
+
+        (MediaQuery.of(context).orientation == Orientation.portrait)
+            ? Scaffold(
+              appBar: CustomBar(),
+              body: mainScreen[_selectedIndex],
+
+              bottomNavigationBar: NavigationBar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 indicatorColor: Theme.of(context).colorScheme.inversePrimary,
+                selectedIndex: _selectedIndex,
                 onDestinationSelected: _onItemTapped,
-                labelType: NavigationRailLabelType.all,
                 destinations: [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
-                  ),
-                  NavigationRailDestination(
+                  NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+                  NavigationDestination(
                     icon: Icon(Icons.book),
-                    label: Text('Dizionario'),
+                    label: 'Dizionario',
                   ),
-                  NavigationRailDestination(
+                  NavigationDestination(
                     icon: Icon(Icons.bookmark),
-                    label: Text('Memorizzate'),
+                    label: 'Memorizzate',
                   ),
-                  NavigationRailDestination(
+
+                  NavigationDestination(
                     icon: Icon(Icons.gamepad),
-                    label: Text('Memory'),
+                    label: 'Memory',
                   ),
                 ],
               ),
-              const VerticalDivider(thickness: 1, width: 1, color: Colors.grey),
-              Expanded(child: mainScreen[_selectedIndex]),
-            ],
-          ),
-        );
+            )
+            : Scaffold(
+              appBar: CustomBar(),
+              body: Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: _selectedIndex,
+                    groupAlignment: 0,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    indicatorColor:
+                        Theme.of(context).colorScheme.inversePrimary,
+                    onDestinationSelected: _onItemTapped,
+                    labelType: NavigationRailLabelType.all,
+                    destinations: [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.home),
+                        label: Text('Home'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.book),
+                        label: Text('Dizionario'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.bookmark),
+                        label: Text('Memorizzate'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.gamepad),
+                        label: Text('Memory'),
+                      ),
+                    ],
+                  ),
+                  const VerticalDivider(
+                    thickness: 1,
+                    width: 1,
+                    color: Colors.grey,
+                  ),
+                  Expanded(child: mainScreen[_selectedIndex]),
+                ],
+              ),
+            );
+
+    return FutureBuilder(
+      future: _pendingFonts,
+      builder: (context, snapshot) {
+        if (ConnectionState.done != snapshot.connectionState) {
+          return LinearProgressIndicator();
+        } else {
+          return scaffold;
+        }
+      },
+    );
   }
 }
 
@@ -203,7 +240,19 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
           actions: [
-            IconButton(icon: Icon(Icons.contrast), onPressed: () {}),
+            IconButton(
+              icon: Icon(Icons.info_outline),
+
+
+
+
+
+
+
+              onPressed: () {
+                showLicensePage(context: context, applicationName: "Miyabi");
+              },
+            ),
             IconButton(
               icon: Icon(Icons.settings),
               onPressed: () {
@@ -242,12 +291,6 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-
-
-
-
-
-
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
@@ -272,7 +315,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   void delete() async {
     setState(() {
-      _loading = true;  //Display loading
+      _loading = true; //Display loading
       _installed = Database.delete();
     });
     await _installed; //Wait for the deletion to be completed
@@ -283,7 +326,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   void install() async {
     setState(() {
-      _loading = true;  //Display loading
+      _loading = true; //Display loading
       _installed = Database.download();
     });
     await _installed; //Wait for the installation to be completed
@@ -299,33 +342,40 @@ class _SettingsDialogState extends State<SettingsDialog> {
         Row(
           children: [
             Text("Download dictionary"),
+
+
+
+
+
+
+            
             FutureBuilder(
               future: _installed,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  if (true == snapshot.data) {  //The compiler gives an error if this condition isn't written explicitly.
+                  if (true == snapshot.data) {
+                    //The compiler gives an error if this condition isn't written explicitly.
                     if (_loading) {
                       return CircularProgressIndicator();
-                    }
-                    else {
+                    } else {
                       return IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: delete,
-                    );
+                        icon: Icon(Icons.delete),
+                        onPressed: delete,
+                      );
                     }
-                  }
-                  else {
+                  } else {
                     if (_loading) {
                       return CircularProgressIndicator();
-                    }
-                    else {
-                      return IconButton(icon: Icon(Icons.download), onPressed: install);
+                    } else {
+                      return IconButton(
+                        icon: Icon(Icons.download),
+                        onPressed: install,
+                      );
                     }
                   }
+                } else {
+                  return CircularProgressIndicator();
                 }
-                else {
-                    return CircularProgressIndicator();
-                  }
               },
             ),
           ],
