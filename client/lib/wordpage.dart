@@ -61,20 +61,22 @@ class WordPage extends StatelessWidget {
                     i++
                   ) {
                     chips.add(
-                      Container(
-                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(5.7),
-                        ),
-                        child: Text(
-                          displayed.senses[index].tags[i],
-                          style: GoogleFonts.ebGaramond(
-                            fontSize: 16,
-                            color: Colors.white,
+                      Tooltip(message: tagMap[displayed.senses[index].tags[i]], child: 
+                        Container(
+                          padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(5.7),
+                          ),
+                          child: Text(
+                            displayed.senses[index].tags[i],
+                            style: GoogleFonts.ebGaramond(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
+                      )
                     );
                   }
                   return Column(

@@ -19,6 +19,8 @@ class Database {
     Uri resource;
     final Completer<List<Vocabulary>> completer = Completer();
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     if (english) {
       resource = Uri.https(_domain, "/search/english/$q");
     } 
@@ -30,8 +32,7 @@ class Database {
                 ? Uri.https(_domain, "/search/reading/$q")
                 : Uri.https(_domain, "/search/kanji/$q");
     }
-    //TODO: preferences
-    if (!window.navigator.onLine) {
+    if (!window.navigator.onLine || (prefs.getBool("useLocalDictionary") ?? false)) {
       print("offline");
       IDBDatabase? database;
       var request = window.indexedDB.open("vocabulary", 1);
@@ -183,22 +184,30 @@ class Database {
     return completer.future;
   }
 
-  static Future downloadTags() async {
+  static Future<Map<String, dynamic>> retrieveTags() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    
     if (await areTagsDownloaded()) {
-      return; //If tags are already there do not do anything.
+      return jsonDecode(prefs.getString("tags")!);
     }
     else {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
       Uri resource = Uri.https(_domain, "/get/tags");
 
       var response = await http.get(resource);
       var tagMap = jsonDecode(response.body)['tags'];
       prefs.setString("tags", jsonEncode(tagMap));
+      return tagMap;
     }
   }
 
   static Future<bool> areTagsDownloaded() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return (prefs.getString("tags") != null);
+  }
+
+  static Future<Vocabulary> wordById(String id) async {
+    Uri resource = Uri.https(_domain, "/get/ids/$id");
+    var response = await http.get(resource);
+    return Vocabulary.fromJson(jsonDecode(response.body)['words'][0]);
   }
 }

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'firebase_options.dart';
 import 'saved_words.dart';
@@ -15,12 +16,15 @@ import 'package:web/web.dart' as web;
 import 'database.dart';
 
 var auth = FirebaseAuth.instance;
+Map tagMap = {};
 
 void main() async {
   GoogleFonts.config.allowRuntimeFetching = false;
   LicenseRegistry.addLicense(() async* {
-    final license = await rootBundle.loadString('assets/OFL.txt');
-    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+    final dictionary = await rootBundle.loadString('assets/license.txt');
+    yield LicenseEntryWithLineBreaks(['Dictionary'], dictionary);
+    final fonts = await rootBundle.loadString('assets/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], fonts);
   });
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
@@ -38,11 +42,11 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
-          bodyLarge: TextStyle(fontSize: 30),
-          bodyMedium: TextStyle(fontSize: 20),
+          bodyLarge: GoogleFonts.notoSansJp(),
+          bodyMedium: GoogleFonts.notoSansJp(),
         ),
         colorScheme: ColorScheme(
-          brightness: Brightness.dark,
+          brightness: Brightness.light,
           primary: const Color.fromARGB(92, 143, 143, 254),
           onPrimary: Colors.black,
           secondary: Color.fromARGB(255, 122, 239, 239),
@@ -75,7 +79,7 @@ class _MyHomePageState extends State<HomePage> {
 
   void initialize() async {
     //TODO: Errors management?
-    await Database.downloadTags();
+    tagMap = await Database.retrieveTags();
     await GoogleFonts.pendingFonts([
       GoogleFonts.shipporiMincho(),
       GoogleFonts.ebGaramond(),
@@ -169,11 +173,11 @@ class _MyHomePageState extends State<HomePage> {
                   NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
                   NavigationDestination(
                     icon: Icon(Icons.book),
-                    label: 'Dizionario',
+                    label: 'Dictionary',
                   ),
                   NavigationDestination(
                     icon: Icon(Icons.bookmark),
-                    label: 'Memorizzate',
+                    label: 'Collection',
                   ),
 
                   NavigationDestination(
@@ -202,11 +206,11 @@ class _MyHomePageState extends State<HomePage> {
                       ),
                       NavigationRailDestination(
                         icon: Icon(Icons.book),
-                        label: Text('Dizionario'),
+                        label: Text('Dictionary'),
                       ),
                       NavigationRailDestination(
                         icon: Icon(Icons.bookmark),
-                        label: Text('Memorizzate'),
+                        label: Text('Collection'),
                       ),
                       NavigationRailDestination(
                         icon: Icon(Icons.gamepad),
@@ -308,35 +312,47 @@ class SettingsDialog extends StatefulWidget {
 class _SettingsDialogState extends State<SettingsDialog> {
   bool _toggled = false;
   late Future<bool> _installed;
-  bool _loading = false;
 
   @override
   void initState() {
-    _installed = Database.isDatabaseInstalled();
     super.initState();
+    _installed = Database.isDatabaseInstalled();
+    initialToggle();
+  }
+
+  void initialToggle() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var local = prefs.getBool("useLocalDictionary");
+    if (local != null) {
+      setState(() {
+        _toggled = local;
+      });
+    }
+  }
+
+  void toggle() async {
+    setState(() => _toggled = !_toggled);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("useLocalDictionary", _toggled);
   }
 
   void delete() async {
     setState(() {
-      _loading = true; //Display loading
       _installed = Database.delete();
-    });
-    await _installed; //Wait for the deletion to be completed
-    setState(() {
-      _loading = false; //Display normal icon
     });
   }
 
   void install() async {
     setState(() {
-      _loading = true; //Display loading
       _installed = Database.download();
     });
-    await _installed; //Wait for the installation to be completed
-    setState(() {
-      _loading = false; //Display normal icon
-    });
   }
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -348,28 +364,21 @@ class _SettingsDialogState extends State<SettingsDialog> {
             FutureBuilder(
               future: _installed,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
+                if (ConnectionState.done == snapshot.connectionState) {
                   if (true == snapshot.data) {
-                    //The compiler gives an error if this condition isn't written explicitly.
-                    if (_loading) {
-                      return CircularProgressIndicator();
-                    } else {
+                    //The compiler gives an error if this condition isn't written explicitly
                       return IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: delete,
                       );
-                    }
                   } else {
-                    if (_loading) {
-                      return CircularProgressIndicator();
-                    } else {
                       return IconButton(
                         icon: Icon(Icons.download),
                         onPressed: install,
                       );
                     }
                   }
-                } else {
+                   else {
                   return CircularProgressIndicator();
                 }
               },
@@ -382,7 +391,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
             "Enabling this option is recommended in case of slow internet speed or if you're using mobile data. Not recommended with slow or older devices.",
           ),
           value: _toggled,
-          onChanged: (value) => setState(() => _toggled = !_toggled),
+          onChanged: (value) => toggle(),
         ),
       ],
     );

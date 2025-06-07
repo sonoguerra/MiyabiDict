@@ -11,6 +11,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
+  final key = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -24,9 +25,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Column(
         children: [
-          TextField(controller: email),
-          TextField(controller: password),
-          FloatingActionButton(
+          TextField(decoration: InputDecoration(border: OutlineInputBorder(), labelText: "Email"), keyboardType: TextInputType.emailAddress, controller: email),
+          TextField(decoration: InputDecoration(border: OutlineInputBorder(), labelText: "Password"), obscureText: true, controller: password),
+          ElevatedButton.icon(
             onPressed: () async {
               try {
                 await FirebaseAuth.instance
@@ -59,8 +60,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
               }
             },
-            tooltip: 'Show me the value!',
-            child: const Icon(Icons.text_fields),
+            label: Text('Sign in', style: TextStyle(fontSize: 21.0)),
+            icon: const Icon(Icons.key),
           ),
         ],
       ),
