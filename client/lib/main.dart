@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +24,9 @@ void main() async {
   });
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
+  //This method is shown as deprecated but is actually the right option on the web platform because you can manage tabs.
+  FirebaseFirestore.instance.enablePersistence(const PersistenceSettings(synchronizeTabs: true));
+  FirebaseFirestore.instance.settings = Settings(cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
   runApp(MainApp());
 }
 
