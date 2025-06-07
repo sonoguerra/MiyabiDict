@@ -1,5 +1,5 @@
 [ ] Aggiungere il get degli id e dei tag nel server
-[ ] Aggiungere il salvataggio locale dei tag
+[X] Aggiungere il salvataggio locale dei tag
 [X] Fare in modo che download() e delete() del database ritornino dei Future<bool>
 
 [ ] Implementare light e dark UI mode

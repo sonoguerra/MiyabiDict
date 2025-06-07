@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:async';
 import 'firebase_options.dart';
 import 'saved_words.dart';
 import 'memory.dart';
@@ -43,7 +44,6 @@ class MainApp extends StatelessWidget {
           secondary: Color.fromARGB(255, 122, 239, 239),
           onSecondary: Colors.grey,
 
-
           error: Colors.yellow,
           onError: Colors.red,
           surface: Colors.white,
@@ -67,16 +67,25 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  late Future _pendingFonts;
+  Completer _completer = Completer();
 
-  @override
-  void initState() {
-    super.initState();
-    _pendingFonts = GoogleFonts.pendingFonts([
+  void initialize() async {
+    //TODO: Errors management?
+    await Database.downloadTags();
+    await GoogleFonts.pendingFonts([
       GoogleFonts.shipporiMincho(),
       GoogleFonts.ebGaramond(),
       GoogleFonts.notoSansJp(),
     ]);
+    setState(() {
+      _completer.complete(false);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
   }
 
   void _onItemTapped(int index) {
@@ -142,9 +151,6 @@ class _MyHomePageState extends State<HomePage> {
     ];
 
     var scaffold =
-
-
-
         (MediaQuery.of(context).orientation == Orientation.portrait)
             ? Scaffold(
               appBar: CustomBar(),
@@ -215,10 +221,10 @@ class _MyHomePageState extends State<HomePage> {
             );
 
     return FutureBuilder(
-      future: _pendingFonts,
+      future: _completer.future,
       builder: (context, snapshot) {
         if (ConnectionState.done != snapshot.connectionState) {
-          return LinearProgressIndicator();
+          return Scaffold(body: const LinearProgressIndicator());
         } else {
           return scaffold;
         }
@@ -242,13 +248,6 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
           actions: [
             IconButton(
               icon: Icon(Icons.info_outline),
-
-
-
-
-
-
-
               onPressed: () {
                 showLicensePage(context: context, applicationName: "Miyabi");
               },
@@ -342,13 +341,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
         Row(
           children: [
             Text("Download dictionary"),
-
-
-
-
-
-
-            
             FutureBuilder(
               future: _installed,
               builder: (context, snapshot) {

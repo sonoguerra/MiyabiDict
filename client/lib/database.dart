@@ -3,10 +3,9 @@ import 'dart:convert';
 import 'dart:js_interop';
 import 'entry.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:web/web.dart';
-
 import 'package:kana_kit/kana_kit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 @JS("JSON.stringify")
 external String stringify(JSAny? object); //Dart jsonEncode does not convert JS objects apparently, so a native JS method is required.
@@ -113,7 +112,6 @@ class Database {
     var request = window.indexedDB.open("vocabulary", 1);
 
     request.onerror = ((Event event) {
-      print("No permission to create an IndexedDB.");
       completer.completeError(request.error.toString());
     }).toJS;
 
@@ -185,20 +183,22 @@ class Database {
     return completer.future;
   }
 
-  static Future getTags() async {
+  static Future downloadTags() async {
     if (await areTagsDownloaded()) {
       return; //If tags are already there do not do anything.
     }
-    
+    else {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      Uri resource = Uri.https(_domain, "/get/tags");
+
+      var response = await http.get(resource);
+      var tagMap = jsonDecode(response.body)['tags'];
+      prefs.setString("tags", jsonEncode(tagMap));
+    }
   }
 
-    static Future<bool> areTagsDownloaded() async {
-    var databases = await window.indexedDB.databases().toDart;
-    for (int i = 0; i < databases.length; i++) {
-      if (databases[i].name == "tags") {
-        return true;
-      }
-    }
-    return false;
+  static Future<bool> areTagsDownloaded() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return (prefs.getString("tags") != null);
   }
 }
