@@ -30,7 +30,6 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   late final SearchController _sc;
   late bool _english = false;
 
-  // TODO: check if _loadList works correctly when switching pages
   @override
   void initState() {
     super.initState();
@@ -39,20 +38,22 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   }
 
   // Loads saved words list from cache
-  // TODO: implement with auth
   void _loadList() async {
     final SharedPreferencesWithCache prefs = await _prefs;
 
-    _prevQueries = prefs.getStringList("history") ?? [];
+    var queries = prefs.getStringList("history") ?? [];
 
     if (auth.currentUser != null) {
       var res = await _db.collection("history").doc(auth.currentUser?.uid).get();
-      _prevQueries = (res.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+      queries = (res.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
     }
+
+    setState(() {
+      _prevQueries = queries;
+    });
   }
 
   // Saves previous queries in cache.
-  // TODO: prefs.setStringList("history" + uid, q);
   void _saveResultInCache(List<String> q) async {
     final SharedPreferencesWithCache prefs = await _prefs;
     prefs.setStringList("history", q);
@@ -65,23 +66,47 @@ class _AsyncSearchState extends State<_AsyncSearch> {
     });
   }
 
+  void _removeResultInFirebase(String q) async {
+    final document = _db.collection("history").doc(auth.currentUser!.uid);
+    await document.get().then((value) {
+      document.update({"saved_res": FieldValue.arrayRemove([q])});
+    });
+  }
+
   Future<void> _performSearch(String q) async {
     final fetchedRes = await Database.search(q, english: _english);
 
     if (fetchedRes.isNotEmpty) {
-      setState(() {
-        if (!_prevQueries.contains(q)) { //possible null exception??
+      if (!_prevQueries.contains(q)) { //possible null exception??
+        setState(() {
           _prevQueries.add(q);
-          
-          if (auth.currentUser == null) {
-            _saveResultInCache(_prevQueries);
-          }
-          else {
-            _saveResultInFirebase(q);
-          }
+        });
+
+        if (auth.currentUser == null) {
+          _saveResultInCache(_prevQueries);
         }
+        else {
+          _saveResultInFirebase(q);
+        }
+      }
+
+      setState(() {
         _results = fetchedRes;
       });
+    }
+  }
+
+  void _removeResult(String q) {
+    setState(() {
+      _prevQueries.remove(q);
+    });
+
+    // if user is not logged in then removes value from the cache
+    // else remove result from Firebase
+    if (auth.currentUser == null) {
+      _saveResultInCache(_prevQueries);
+    } else {
+      _removeResultInFirebase(q);
     }
   }
 
@@ -151,6 +176,14 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                     _sc.closeView(res);
                     _performSearch(res);
                   },
+                  trailing: IconButton(
+                    onPressed: () {
+                      _sc.closeView("");
+                      _removeResult(res);
+                      _sc.openView();
+                    }, 
+                    icon: Icon(Icons.delete)
+                  )
                 );
               }).toList();
             },
