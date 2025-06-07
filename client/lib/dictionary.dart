@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pwa_dict/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database.dart';
 import 'entry.dart';
@@ -17,15 +19,18 @@ class _AsyncSearch extends StatefulWidget {
 }
 
 class _AsyncSearchState extends State<_AsyncSearch> {
+  // shared_preferences package instance variable for saving in cache
   final Future<SharedPreferencesWithCache> _prefs =
       SharedPreferencesWithCache.create(
         cacheOptions: const SharedPreferencesWithCacheOptions(),
       );
+  final _db = FirebaseFirestore.instance;
   List<Vocabulary> _results = [];
   late List<String> _prevQueries;
   late final SearchController _sc;
-  late bool english = false;
+  late bool _english = false;
 
+  // TODO: check if _loadList works correctly when switching pages
   @override
   void initState() {
     super.initState();
@@ -33,29 +38,47 @@ class _AsyncSearchState extends State<_AsyncSearch> {
     _loadList();
   }
 
-  /// Loads saved words list from cache
-  /// TODO: implement with auth
+  // Loads saved words list from cache
+  // TODO: implement with auth
   void _loadList() async {
     final SharedPreferencesWithCache prefs = await _prefs;
-    _prevQueries = prefs.getStringList("saved_words") ?? [];
+
+    _prevQueries = prefs.getStringList("history") ?? [];
+
+    if (auth.currentUser != null) {
+      var res = await _db.collection("history").doc(auth.currentUser?.uid).get();
+      _prevQueries = (res.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+    }
   }
 
-  /// Saves previous queries in cache.
-  /// TODO: prefs.setStringList("saved_words" + uid, q);
+  // Saves previous queries in cache.
+  // TODO: prefs.setStringList("history" + uid, q);
   void _saveResultInCache(List<String> q) async {
     final SharedPreferencesWithCache prefs = await _prefs;
-    prefs.setStringList("saved_words", q);
+    prefs.setStringList("history", q);
   }
 
-  //TODO
+  void _saveResultInFirebase(String q) async {
+    final document = _db.collection("history").doc(auth.currentUser!.uid);
+    await document.get().then((value) {
+      document.update({"saved_res" : FieldValue.arrayUnion([q])});
+    });
+  }
+
   Future<void> _performSearch(String q) async {
-    final fetchedRes = await Database.search(q, english: english);
+    final fetchedRes = await Database.search(q, english: _english);
 
     if (fetchedRes.isNotEmpty) {
       setState(() {
-        if (!_prevQueries.contains(q)) {
+        if (!_prevQueries.contains(q)) { //possible null exception??
           _prevQueries.add(q);
-          _saveResultInCache(_prevQueries);
+          
+          if (auth.currentUser == null) {
+            _saveResultInCache(_prevQueries);
+          }
+          else {
+            _saveResultInFirebase(q);
+          }
         }
         _results = fetchedRes;
       });
@@ -65,7 +88,6 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   @override
   void dispose() {
     super.dispose();
-    _sc.closeView("");
     _sc.dispose();
     _saveResultInCache(_prevQueries);
   }
@@ -94,10 +116,10 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                       ButtonSegment(value: false, label: Text("🇯🇵")),
                       ButtonSegment(value: true, label: Text("🇬🇧")),
                     ],
-                    selected: {english},
+                    selected: {_english},
                     onSelectionChanged: (value) {
                       setState(() {
-                        english = value.first;
+                        _english = value.first;
                       });
                     },
                     showSelectedIcon: false,
@@ -134,6 +156,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
             },
           ),
         ),
+        // TODO: verify if there are alternatives
         Expanded(
           child: ListView.builder(
             shrinkWrap: true,
@@ -160,7 +183,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                       builder:
                           (context) => WordPage(
                             _results[index],
-                          ), // wrong implementation
+                          ),
                     ),
                   );
                 },
