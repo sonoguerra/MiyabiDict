@@ -6,19 +6,15 @@ import 'database.dart';
 import 'entry.dart';
 import 'wordpage.dart';
 
-class DictionaryList extends StatelessWidget {
+class DictionaryList extends StatefulWidget {
   const DictionaryList({super.key});
 
   @override
-  Widget build(BuildContext context) => _AsyncSearch();
+  State<StatefulWidget> createState() => _DictionaryListState();
+  
 }
 
-class _AsyncSearch extends StatefulWidget {
-  @override
-  _AsyncSearchState createState() => _AsyncSearchState();
-}
-
-class _AsyncSearchState extends State<_AsyncSearch> {
+class _DictionaryListState extends State<DictionaryList> {
   // shared_preferences package instance variable for saving in cache
   final Future<SharedPreferencesWithCache> _prefs =
       SharedPreferencesWithCache.create(
@@ -26,9 +22,9 @@ class _AsyncSearchState extends State<_AsyncSearch> {
       );
   final _db = FirebaseFirestore.instance;
   List<Vocabulary> _results = [];
-  late List<String> _prevQueries;
+  List<String> _prevQueries = [];
   late final SearchController _sc;
-  late bool _english = false;
+  bool _english = false;
 
   @override
   void initState() {
@@ -41,11 +37,20 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   void _loadList() async {
     final SharedPreferencesWithCache prefs = await _prefs;
 
+    // if user not logged: data fetch from cache (if data exist)
     var queries = prefs.getStringList("history") ?? [];
 
     if (auth.currentUser != null) {
-      var res = await _db.collection("history").doc(auth.currentUser?.uid).get();
-      queries = (res.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+      var doc = _db.collection("history").doc(auth.currentUser!.uid);
+      doc.get().then((value) {
+        // if user already has saved history in db then fetch it, 
+        // else create entry in db. 
+        if (value.exists) {
+          queries = (value.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+        } else {
+          doc.set({"saved_res" : []});
+        }
+      },);
     }
 
     setState(() {
@@ -53,7 +58,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
     });
   }
 
-  // Saves previous queries in cache.
+  // saves previous queries in cache.
   void _saveResultInCache(List<String> q) async {
     final SharedPreferencesWithCache prefs = await _prefs;
     prefs.setStringList("history", q);
@@ -77,7 +82,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
     final fetchedRes = await Database.search(q, english: _english);
 
     if (fetchedRes.isNotEmpty) {
-      if (!_prevQueries.contains(q)) { //possible null exception??
+      if (!_prevQueries.contains(q)) {
         setState(() {
           _prevQueries.add(q);
         });
