@@ -206,6 +206,25 @@ class Database {
   }
 
   static Future<Vocabulary> wordById(String id) async {
+    final Completer<Vocabulary> completer = Completer();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!window.navigator.onLine || (prefs.getBool("useLocalDictionary") ?? false)) {
+      IDBDatabase? database;
+      var request = window.indexedDB.open("vocabulary", 1);
+
+      request.onsuccess = ((Event event) {
+        database = request.result as IDBDatabase;
+        var databaseTransaction = database?.transaction("words".toJS);
+        var req = databaseTransaction?.objectStore("words").get(id.toJS);
+        
+        req?.onsuccess = ((Event event) {
+          completer.complete(Vocabulary.fromJson(jsonDecode(req.result.toString())));
+        }).toJS;
+      }).toJS;
+
+      return completer.future;
+    }
     Uri resource = Uri.https(_domain, "/get/ids/$id");
     var response = await http.get(resource);
     return Vocabulary.fromJson(jsonDecode(response.body)['words'][0]);

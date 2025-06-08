@@ -29,8 +29,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
   //This method is shown as deprecated but is actually the right option on the web platform.
-  FirebaseFirestore.instance.enablePersistence(const PersistenceSettings(synchronizeTabs: true));
-  FirebaseFirestore.instance.settings = Settings(cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
+  //FirebaseFirestore.instance.enablePersistence(const PersistenceSettings(synchronizeTabs: true));
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true, cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
   runApp(MainApp());
 }
 
@@ -42,6 +42,8 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
+
+
           bodyLarge: GoogleFonts.notoSansJp(fontSize: 22.0),
           bodyMedium: GoogleFonts.notoSansJp(fontSize: 19.0),
         ),
@@ -51,7 +53,6 @@ class MainApp extends StatelessWidget {
           onPrimary: Colors.black,
           secondary: Color.fromARGB(255, 122, 239, 239),
           onSecondary: Colors.grey,
-
           error: Colors.yellow,
           onError: Colors.red,
           surface: Colors.white,
@@ -141,6 +142,8 @@ class _MyHomePageState extends State<HomePage> {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
+
+
                   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea ca",
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
@@ -239,6 +242,8 @@ class _MyHomePageState extends State<HomePage> {
       },
     );
   }
+
+
 }
 
 //The logic for the AppBar was starting to become complicated, so this should make for a reusable modular component.
@@ -281,8 +286,8 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
                     }
                   },
                 )
-                : IconButton(
-                  icon: Icon(Icons.login),
+                : ElevatedButton(
+                  child: Text("Login"),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -337,6 +342,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   void delete() async {
+
+    
     setState(() {
       _installed = Database.delete();
     });
@@ -347,12 +354,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
       _installed = Database.download();
     });
   }
-
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {

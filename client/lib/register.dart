@@ -42,6 +42,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(color: Colors.grey[300], backgroundColor: Colors.grey[300]),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
+
+
+                    
                     labelText: "Email",
                   ),
                   keyboardType: TextInputType.emailAddress,

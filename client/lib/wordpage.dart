@@ -61,8 +61,9 @@ class WordPage extends StatelessWidget {
                     i++
                   ) {
                     chips.add(
-                      Tooltip(message: tagMap[displayed.senses[index].tags[i]], child: 
-                        Container(
+                      Tooltip(
+                        message: tagMap[displayed.senses[index].tags[i]],
+                        child: Container(
                           padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                           decoration: BoxDecoration(
                             color: Colors.grey[800],
@@ -76,7 +77,7 @@ class WordPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                      )
+                      ),
                     );
                   }
                   return Column(
@@ -140,12 +141,13 @@ class WordPage extends StatelessWidget {
                   return Column(children: [Divider(), SizedBox(height: 16.0)]);
                 },
                 shrinkWrap: true,
+              
+              
+              
               ),
               ListView.builder(
                 itemBuilder:
                     (context, index) =>
-
-
                         Text("${index + 1}. ${displayed.forms[index]}"),
                 itemCount: displayed.forms.length,
                 shrinkWrap: true,
@@ -171,8 +173,38 @@ class _AddVocabState extends State<AddVocab> {
   final database = FirebaseFirestore.instance;
   bool toggled = false;
   final Vocabulary displayed;
+  bool loading = true;
 
   _AddVocabState(this.displayed);
+
+  @override
+  void initState() {
+    super.initState();
+    getCollection();
+  }
+
+  void getCollection() async {
+    var present = false;
+    if (auth.currentUser != null) {
+      var doc =
+          await database.collection("saved").doc(auth.currentUser!.uid).get();
+      if (doc.exists) {
+        List collection = doc['saved'];
+        for (int i = 0; i < collection.length; i++) {
+          if (collection.elementAt(i)['id'] == displayed.id) {
+            present = true;
+            break;
+          }
+        }
+      }
+    }
+    setState(() {
+      toggled = present;
+      loading = false;
+    });
+  }
+
+  void a() {}
 
   void denied() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -210,6 +242,9 @@ class _AddVocabState extends State<AddVocab> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
+
+
+      
       SnackBar(
         content: Text(
           toggled ? "Removed from collection" : "Added to collection.",
@@ -226,6 +261,9 @@ class _AddVocabState extends State<AddVocab> {
     return StreamBuilder(
       stream: auth.userChanges(),
       builder: (context, snapshot) {
+        if (loading) {
+          return CircularProgressIndicator(); //Not showing the button while the retrieval is still loading might be semantically better for the end user.
+        }
         return IconButton(
           icon:
               toggled
@@ -242,13 +280,6 @@ class BookmarkLabel extends StatelessWidget {
   final List<Widget> children;
 
   const BookmarkLabel({super.key, required this.children});
-
-
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
