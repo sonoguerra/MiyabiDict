@@ -25,6 +25,7 @@ class _DictionaryListState extends State<DictionaryList> {
   List<String> _prevQueries = [];
   late final SearchController _sc;
   bool _english = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _DictionaryListState extends State<DictionaryList> {
     var queries = prefs.getStringList("history") ?? [];
 
     if (auth.currentUser != null) {
-      var doc = _db.collection("history").doc(auth.currentUser!.uid);
+      final doc = _db.collection("history").doc(auth.currentUser!.uid);
       doc.get().then((value) {
         // if user already has saved history in db then fetch it, 
         // else create entry in db. 
@@ -65,20 +66,29 @@ class _DictionaryListState extends State<DictionaryList> {
   }
 
   void _saveResultInFirebase(String q) async {
-    final document = _db.collection("history").doc(auth.currentUser!.uid);
-    await document.get().then((value) {
-      document.update({"saved_res" : FieldValue.arrayUnion([q])});
+    final doc = _db.collection("history").doc(auth.currentUser!.uid);
+    doc.get().then((value) {
+      // if user already has saved history in db then fetch it, 
+      // else create entry in db. 
+      if (value.exists) {
+        doc.update({"saved_res" : FieldValue.arrayUnion([q])});
+      } else {
+        doc.set({"saved_res" : []});
+      }
     });
   }
 
   void _removeResultInFirebase(String q) async {
-    final document = _db.collection("history").doc(auth.currentUser!.uid);
-    await document.get().then((value) {
-      document.update({"saved_res": FieldValue.arrayRemove([q])});
+    final doc = _db.collection("history").doc(auth.currentUser!.uid);
+    doc.get().then((value) {
+      doc.update({"saved_res": FieldValue.arrayRemove([q])});
     });
   }
 
   Future<void> _performSearch(String q) async {
+    setState(() {
+      _isLoading = true;
+    });
     final fetchedRes = await Database.search(q, english: _english);
 
     if (fetchedRes.isNotEmpty) {
@@ -97,6 +107,7 @@ class _DictionaryListState extends State<DictionaryList> {
 
       setState(() {
         _results = fetchedRes;
+        _isLoading = false;
       });
     }
   }
@@ -194,7 +205,7 @@ class _DictionaryListState extends State<DictionaryList> {
             },
           ),
         ),
-        // TODO: verify if there are alternatives
+        if (_isLoading) const CircularProgressIndicator(),
         Expanded(
           child: ListView.builder(
             shrinkWrap: true,
@@ -219,9 +230,9 @@ class _DictionaryListState extends State<DictionaryList> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder:
-                          (context) => WordPage(
-                            _results[index],
-                          ),
+                        (context) => WordPage(
+                          _results[index],
+                        ),
                     ),
                   );
                 },
