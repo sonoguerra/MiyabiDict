@@ -1,15 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'register.dart';
+import 'login.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
   final key = GlobalKey<FormState>();
@@ -30,18 +30,16 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: EdgeInsets.all(16.0),
           width: 530,
           height: 600.0,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(31.0),
-          ),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(31.0)),
           child: Form(
             key: key,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 25.0,
               children: [
-                Text("Login", style: TextStyle(fontSize: 35.0)),
+                Text("Register", style: TextStyle(fontSize: 35.0)),
                 TextFormField(
+                  style: TextStyle(color: Colors.grey[300], backgroundColor: Colors.grey[300]),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Email",
@@ -50,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: email,
                 ),
                 TextFormField(
+                  style: TextStyle(color: Colors.grey[300], backgroundColor: Colors.grey[300]),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Password",
@@ -57,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: true,
                   controller: password,
                 ),
-                ElevatedButton.icon(
+                OutlinedButton.icon(
                   onPressed: () async {
                     try {
                       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -88,38 +87,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                     }
                   },
-                  label: Text('Login', style: TextStyle(fontSize: 21.0)),
+                  label: Text('Register', style: TextStyle(fontSize: 21.0)),
                   icon: const Icon(Icons.key),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("New user?", style: TextStyle(fontSize: 12.0)),
-                    TextButton(
-                      child: Text("Register."),
-                      onPressed: () {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterScreen(),));
-                      },
-                    ),
-                  ],
-                ),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("New user?", style: TextStyle(fontSize: 12.0)), TextButton(child: Text("Register."), onPressed: () {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
+                },)]),
                 Text("or"),
-                ElevatedButton.icon(
-                  label: Text("Login as guest"),
-                  icon: Icon(Icons.person),
-                  onPressed: () async {
-                    try {
-                      await FirebaseAuth.instance.signInAnonymously();
-                      if (context.mounted) {
-                        Navigator.of(context).pop();
-                      }
-                    } on FirebaseAuthException catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error.")));
-                      }
-                    }
-                  },
-                ),
+                ElevatedButton.icon(label: Text("Register as guest"), icon: Icon(Icons.person), onPressed: () {},)
               ],
             ),
           ),

@@ -28,7 +28,7 @@ void main() async {
   });
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
-  //This method is shown as deprecated but is actually the right option on the web platform because you can manage tabs.
+  //This method is shown as deprecated but is actually the right option on the web platform.
   FirebaseFirestore.instance.enablePersistence(const PersistenceSettings(synchronizeTabs: true));
   FirebaseFirestore.instance.settings = Settings(cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
   runApp(MainApp());
@@ -42,8 +42,8 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
-          bodyLarge: GoogleFonts.notoSansJp(),
-          bodyMedium: GoogleFonts.notoSansJp(),
+          bodyLarge: GoogleFonts.notoSansJp(fontSize: 22.0),
+          bodyMedium: GoogleFonts.notoSansJp(fontSize: 19.0),
         ),
         colorScheme: ColorScheme(
           brightness: Brightness.light,
