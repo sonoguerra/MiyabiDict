@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pwa_dict/main.dart';
 
@@ -12,125 +11,92 @@ class SavedWords extends StatefulWidget {
 
 class _SavedWordsState extends State<SavedWords> {
   final _db = FirebaseFirestore.instance;
-  List _words = [];
-  late Future<DocumentSnapshot<Map<String, dynamic>>> _futureWords;
+  late List<Map<String, dynamic>> _words;
+  bool _isHovered = false;
 
   @override
   void initState() {
     super.initState();
-    if (auth.currentUser != null) {
-      _initFutureWords();
+    _words = [];
+  }
+
+  void _loadSavedWords() async {
+    var res = await _db.collection("saved").doc(auth.currentUser!.uid).get();
+
+    // this prevents the state to be set after disposal
+    if (mounted) {
+      if (res.data()?["saved"] == null) {
+        setState(() {
+          _words = [];
+        });
+      } else {
+        setState(() {
+          _words = List<Map<String, dynamic>>.from(res.data()!["saved"]);
+        });
+      }
     }
   }
 
-  void _initFutureWords() {
-    // Initialize saved words from logged user
-     _futureWords = _db.collection("saved").doc(auth.currentUser!.uid).get();
-  }
-
-  //TODO: animations
-  /* void _handleTileDeleted(int indexToRemove) {
+  void _removeWord(int i) async {
     setState(() {
-      // TODO
-      //_words.removeAt(indexToRemove);
+      _words.removeAt(i);
     });
-  } */
+
+    final doc = _db.collection("saved").doc(auth.currentUser!.uid);
+    await doc.update({"saved" : _words});
+  }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: auth.idTokenChanges(),
+      stream: auth.userChanges(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.hasData) {
+          // if user logs out while in saved_words page, enters this if
           if (auth.currentUser == null) {
-            return Center(child: Text("You need to be logged in to do that."));
+            return Center(
+              child: Text("You need to be logged in to use this feature."),
+            );
+          } else {
+            _loadSavedWords();
+            return ListView.builder(
+              itemCount: _words.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Row(
+                    spacing: 10.0,
+                    children: [
+                      Text(_words[index]["kanji"]),
+                      Text(
+                        _words[index]["reading"],
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  subtitle: Text(_words[index]["sense"]),
+                  trailing: IconButton(
+                    onPressed: () => _removeWord(index), 
+                    icon: _isHovered
+                      ? Icon(Icons.bookmark)
+                      : Icon(Icons.bookmark_remove)
+                  ),
+                );
+              },
+            );
           }
-          else {
+        } else {
+          // loads until auth gets all data after login
+          if (auth.currentUser != null) {
             return CircularProgressIndicator();
           }
-        } else if (snapshot.hasData) {
-          _initFutureWords();
 
-          return FutureBuilder(
-            future: _futureWords,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data?.data() != null) {
-                  _words = snapshot.data!.data()!["saved"];
-                }
-                return ListView.builder(
-                  itemCount: _words.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Row(
-                        spacing: 10.0,
-                        children: [
-                          Text(_words[index]["kanji"]),
-                          Text(
-                            _words[index]["reading"],
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      subtitle: Text(_words[index]["sense"])
-                    );
-                  },
-                );
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
+          return Center(
+            child: Text("You need to be logged in to use this feature."),
           );
-        } else {
-          return Center(child: Text("There was an error.")); //TODO
         }
       },
-    );
-  }
-}
-
-class _HoverIconButton extends StatefulWidget {
-  const _HoverIconButton({
-    super.key,
-    required this.index,
-    required this.onChanged,
-    required this.text,
-  });
-
-  final int index;
-  final ValueChanged<int> onChanged;
-  final String text;
-
-  @override
-  State<StatefulWidget> createState() => _HoverIconButtonState();
-}
-
-class _HoverIconButtonState extends State<_HoverIconButton> {
-  bool _isHovered = false;
-
-  void _handleTap() {
-    widget.onChanged(widget.index);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(widget.text),
-      leading: MouseRegion(
-        onEnter: (event) => setState(() => _isHovered = true),
-        onExit: (event) => setState(() => _isHovered = false),
-        cursor: SystemMouseCursors.click,
-        child: IconButton(
-          icon: Icon(_isHovered ? Icons.bookmark_remove : Icons.bookmark),
-          onPressed: () => _handleTap(),
-        ),
-      ),
-      tileColor:
-          (widget.index % 2 == 0) //TODO: change colors
-              ? Theme.of(context).colorScheme.primary
-              : Colors.white,
     );
   }
 }
