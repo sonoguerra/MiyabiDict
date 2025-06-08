@@ -79,8 +79,11 @@ class _SavedWordsState extends State<SavedWords> {
                   trailing: IconButton(
                     onPressed: () => _removeWord(index), 
                     icon: _isHovered
-                      ? Icon(Icons.bookmark)
-                      : Icon(Icons.bookmark_remove)
+                      ? Icon(Icons.bookmark_remove)
+                      : Icon(Icons.bookmark),
+                    onHover: (value) => setState(() {
+                      _isHovered = value;
+                    }),
                   ),
                 );
               },
