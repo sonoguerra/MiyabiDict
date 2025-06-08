@@ -61,20 +61,22 @@ class WordPage extends StatelessWidget {
                     i++
                   ) {
                     chips.add(
-                      Container(
-                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(5.7),
-                        ),
-                        child: Text(
-                          displayed.senses[index].tags[i],
-                          style: GoogleFonts.newsreader(
-                            fontSize: 16,
-                            color: Colors.white,
+                      Tooltip(message: tagMap[displayed.senses[index].tags[i]], child: 
+                        Container(
+                          padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(5.7),
+                          ),
+                          child: Text(
+                            displayed.senses[index].tags[i],
+                            style: GoogleFonts.ebGaramond(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
+                      )
                     );
                   }
                   return Column(
@@ -89,7 +91,7 @@ class WordPage extends StatelessWidget {
                         (i) {
                           return Text(
                             "• ${displayed.senses[index].meaning[i].text}",
-                            style: GoogleFonts.newsreader(fontSize: 21.0),
+                            style: GoogleFonts.ebGaramond(fontSize: 21.0),
                           );
                         },
                       ),
@@ -98,7 +100,7 @@ class WordPage extends StatelessWidget {
                         (i) {
                           return Text(
                             displayed.senses[index].info[i],
-                            style: GoogleFonts.newsreader(
+                            style: GoogleFonts.ebGaramond(
                               fontStyle: FontStyle.italic,
                             ),
                           );
@@ -109,7 +111,7 @@ class WordPage extends StatelessWidget {
                       >.generate(displayed.senses[index].related.length, (i) {
                         return Text(
                           "see also: ${displayed.senses[index].related[i][0]}",
-                          style: GoogleFonts.newsreader(),
+                          style: GoogleFonts.ebGaramond(),
                         );
                       }),
                       ...List<Widget>.generate(
@@ -117,7 +119,7 @@ class WordPage extends StatelessWidget {
                         (i) {
                           return Text(
                             "antonym: ${displayed.senses[index].antonym[i][0]}",
-                            style: GoogleFonts.newsreader(),
+                            style: GoogleFonts.ebGaramond(),
                           );
                         },
                       ),
@@ -128,7 +130,7 @@ class WordPage extends StatelessWidget {
                       ) {
                         return Text(
                           'Origin: ${displayed.senses[index].languageSource[i].lang} "${displayed.senses[index].languageSource[i].text}" ${(displayed.senses[index].languageSource[i].waseieigo ? "(wasei)" : "")}',
-                          style: GoogleFonts.newsreader(),
+                          style: GoogleFonts.ebGaramond(),
                         );
                       }),
                     ],

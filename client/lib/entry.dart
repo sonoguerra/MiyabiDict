@@ -19,11 +19,26 @@ class Vocabulary {
 
   String get word => (kanjis.isNotEmpty && kanjis[0].common) ? kanjis[0].text : kana[0].text;
   String get mainReading => kana[0].text;
+
   //TODO: reading for each of the forms
   List<String> get forms {
     List<String> res = [];
     for (int i = 0; i < kanjis.length; i++) {
       res.add(kanjis[i].text);
+    }
+    return res;
+  }
+
+  Set<String> get allTags {
+    Set<String> res = {};
+    for (int i = 0; i < kanjis.length; i++) {
+      res.addAll(kanjis[i].tags);
+    }
+    for (int i = 0; i < kana.length; i++) {
+      res.addAll(kana[i].tags);
+    }
+    for (int i = 0; i < senses.length; i++) {
+      res.addAll(senses[i].tags);
     }
     return res;
   }
@@ -127,6 +142,8 @@ class JSense {
     for (int i = 0; i < meaning.length; i++) {
       elements.add(meaning[i].text);
     }
+
+
     return elements.join(" | ");
   }
 

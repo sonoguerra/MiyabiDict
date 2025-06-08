@@ -1,6 +1,6 @@
 class JPUtils {
 
-  //There might be a better way to do this but for now we'll keep this hardcoded. Added obsolete kana too because you never know.
+  //Added obsolete kana too because you never know.
 
   static Map<String, String> romajiMapping = {
     'あ': 'a', 'ア': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'ウ': 'u', 'エ': 'e', 'お': 'o', 'オ': 'o', 'イ': 'i',
@@ -18,6 +18,15 @@ class JPUtils {
     'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo', 'バ': 'ba', 'ビ': 'bi', 'ブ': 'bu', 'ベ': 'be', 'ボ': 'bo',
     'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po', 'パ': 'pa', 'ピ': 'pi', 'プ': 'pu', 'ペ': 'pe', 'ポ': 'po',
     'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo', 'ザ': 'za', 'ジ': 'ji', 'ズ': 'zu', 'ゼ': 'ze', 'ゾ': 'zo',
+  };
+
+  static Map<String, String> sentences = {
+    "Nice weather today": "今日はいい天気ですね",
+    "Going to far to turn back": "乗り掛かった舟",
+    "Prevention is better than curing": "転ばぬ先の杖",
+    "Like father, like son": "カエルの子はカエル",
+    "Some things are better left unsaid": "言わぬが花",
+    "Hard to see what is under your nose": "灯台もと暗し"
   };
 
 }

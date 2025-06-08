@@ -1,0 +1,2 @@
+# Miyabi
+Miyabi è un dizionario online che permette di ottenere le definizioni inglesi di parole giapponesi. La PWA è stata realizzata come progetto finale del corso di Programmazione di Sistemi Embedded.

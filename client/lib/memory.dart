@@ -146,8 +146,7 @@ class _MemoryGameState extends State<MemoryGame> {
                 children: List.generate(3, (index) {
                   Color getColor() {
                     if (selectedIndex == index) {
-                      if (wasCorrect == true) {
-                        rightChoices++;
+                      if (wasCorrect == true) {                        
                         return Colors.green;
                       } else {
                         return Colors.red;
@@ -161,25 +160,26 @@ class _MemoryGameState extends State<MemoryGame> {
                       if (isTapDisabled) {
                         return;
                       }
-                      if (counter < 10) {
-                        setState(() {
-                          isTapDisabled = true;
-                          selectedIndex = index;
-                          var currentList = snapshot.data!;
-                          wasCorrect = currentList[index].word == selectedWord;
-                          counter++;
-                        });
 
-                        await Future.delayed(Duration(milliseconds: 1000));
+                      setState(() {
+                        isTapDisabled = true;
+                        selectedIndex = index;
+                        wasCorrect = snapshot.data![index].word == selectedWord;
+                        if (wasCorrect!) rightChoices++;
+                      });
+
+                      await Future.delayed(Duration(milliseconds: 750));
+                      if (counter > 9) {
                         setState(() {
-                          selectedIndex = null;
-                          wasCorrect = null;
-                          _futureWords = fetchWords();
+                          showEndScreen = true;
                           isTapDisabled = false;
                         });
                       } else {
                         setState(() {
-                          showEndScreen = true;
+                          counter++;
+                          selectedIndex = null;
+                          wasCorrect = null;
+                          _futureWords = fetchWords();
                           isTapDisabled = false;
                         });
                       }

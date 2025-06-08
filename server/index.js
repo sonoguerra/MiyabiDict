@@ -1,8 +1,8 @@
 import express from 'express'
-import {kanjiBeginning, readingBeginning, setup as setupJmdict} from 'jmdict-simplified-node'
+import {idsToWords, getField, kanjiBeginning, readingBeginning, getTags, setup as setupJmdict} from 'jmdict-simplified-node'
 const app = express()
 
-const license = "These results are provided using JMDICT dictionary files (in particular the json simplified version at https://github.com/scriptin/jmdict-simplified). Both the original and simplified JMDICT files are made available under a CC-BY-SA 4.0 license. Refer to https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project for the sources and to https://creativecommons.org/licenses/by-sa/4.0/legalcode.en for the legal code of the license."
+const license = "These results are provided using JMDICT dictionary files (in particular the json simplified version made by Dimitry Shpika available at https://github.com/scriptin/jmdict-simplified). The original files are property of the Electronic Dictionary Research and Development Group, and both the original and simplified JMDICT files are made available under a CC-BY-SA 4.0 license. Refer to https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project for the sources and to https://creativecommons.org/licenses/by-sa/4.0/legalcode.en for the legal code of the license."
 const jmdictPromise = setupJmdict('jmdict_db', 'jmdictcommon.json')
 const {db} = await jmdictPromise
 const port = process.env.PORT || 5000
@@ -46,6 +46,21 @@ app.get('/search/english/:english', async (req, res) => {
 app.get('/dictionary/common', (req, res) => res.sendFile("jmdictcommon.json", {root: dir}))
 
 app.get('/dictionary', (req, res) => res.end(license))
+
+app.get('/get/ids/:id', async (req, res) => {
+   var words = await idsToWords(db, [req.params['id']])
+   res.send({words: words, license: license})
+})
+
+app.get('/get/field/:field', async (req, res) => {
+   var fields = await getField(db, req.params['field'])
+   res.send({fields: fields, license: license})
+})
+
+app.get('/get/tags', async (req, res) => {
+   var tags = await getTags(db)
+   res.send({tags: tags, license: license})
+})
 
 app.listen(port, () => {
    console.log("Server running.")

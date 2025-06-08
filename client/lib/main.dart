@@ -1,6 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 import 'firebase_options.dart';
 import 'saved_words.dart';
 import 'memory.dart';
@@ -10,10 +16,21 @@ import 'package:web/web.dart' as web;
 import 'database.dart';
 
 var auth = FirebaseAuth.instance;
+Map tagMap = {};
 
 void main() async {
+  GoogleFonts.config.allowRuntimeFetching = false;
+  LicenseRegistry.addLicense(() async* {
+    final dictionary = await rootBundle.loadString('assets/license.txt');
+    yield LicenseEntryWithLineBreaks(['Dictionary'], dictionary);
+    final fonts = await rootBundle.loadString('assets/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], fonts);
+  });
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
+  //This method is shown as deprecated but is actually the right option on the web platform.
+  FirebaseFirestore.instance.enablePersistence(const PersistenceSettings(synchronizeTabs: true));
+  FirebaseFirestore.instance.settings = Settings(cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
   runApp(MainApp());
 }
 
@@ -25,15 +42,16 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
-          bodyLarge: TextStyle(fontSize: 30),
-          bodyMedium: TextStyle(fontSize: 20),
+          bodyLarge: GoogleFonts.notoSansJp(fontSize: 22.0),
+          bodyMedium: GoogleFonts.notoSansJp(fontSize: 19.0),
         ),
         colorScheme: ColorScheme(
-          brightness: Brightness.dark,
+          brightness: Brightness.light,
           primary: const Color.fromARGB(92, 143, 143, 254),
           onPrimary: Colors.black,
           secondary: Color.fromARGB(255, 122, 239, 239),
           onSecondary: Colors.grey,
+
           error: Colors.yellow,
           onError: Colors.red,
           surface: Colors.white,
@@ -43,7 +61,6 @@ class MainApp extends StatelessWidget {
       ),
       home: HomePage(),
 
-      
       debugShowCheckedModeBanner: false,
     );
   }
@@ -58,6 +75,26 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  Completer _completer = Completer();
+
+  void initialize() async {
+    //TODO: Errors management?
+    tagMap = await Database.retrieveTags();
+    await GoogleFonts.pendingFonts([
+      GoogleFonts.shipporiMincho(),
+      GoogleFonts.ebGaramond(),
+      GoogleFonts.notoSansJp(),
+    ]);
+    setState(() {
+      _completer.complete(false);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -121,72 +158,86 @@ class _MyHomePageState extends State<HomePage> {
       MemoryGame(),
     ];
 
-    return (MediaQuery.of(context).orientation == Orientation.portrait)
-        ? Scaffold(
-          appBar: CustomBar(),
-          body: mainScreen[_selectedIndex],
+    var scaffold =
+        (MediaQuery.of(context).orientation == Orientation.portrait)
+            ? Scaffold(
+              appBar: CustomBar(),
+              body: mainScreen[_selectedIndex],
 
-          bottomNavigationBar: NavigationBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            indicatorColor: Theme.of(context).colorScheme.inversePrimary,
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: _onItemTapped,
-            destinations: [
-              NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-              NavigationDestination(
-                icon: Icon(Icons.book),
-                label: 'Dizionario',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.bookmark),
-                label: 'Memorizzate',
-              ),
-            
-            
-            
-            
-            
-            
-            
-              NavigationDestination(icon: Icon(Icons.gamepad), label: 'Memory'),
-            ],
-          ),
-        )
-        : Scaffold(
-          appBar: CustomBar(),
-          body: Row(
-            children: [
-              NavigationRail(
-                selectedIndex: _selectedIndex,
-                groupAlignment: 0,
+              bottomNavigationBar: NavigationBar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 indicatorColor: Theme.of(context).colorScheme.inversePrimary,
+                selectedIndex: _selectedIndex,
                 onDestinationSelected: _onItemTapped,
-                labelType: NavigationRailLabelType.all,
                 destinations: [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
-                  ),
-                  NavigationRailDestination(
+                  NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+                  NavigationDestination(
                     icon: Icon(Icons.book),
-                    label: Text('Dizionario'),
+                    label: 'Dictionary',
                   ),
-                  NavigationRailDestination(
+                  NavigationDestination(
                     icon: Icon(Icons.bookmark),
-                    label: Text('Memorizzate'),
+                    label: 'Collection',
                   ),
-                  NavigationRailDestination(
+
+                  NavigationDestination(
                     icon: Icon(Icons.gamepad),
-                    label: Text('Memory'),
+                    label: 'Memory',
                   ),
                 ],
               ),
-              const VerticalDivider(thickness: 1, width: 1, color: Colors.grey),
-              Expanded(child: mainScreen[_selectedIndex]),
-            ],
-          ),
-        );
+            )
+            : Scaffold(
+              appBar: CustomBar(),
+              body: Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: _selectedIndex,
+                    groupAlignment: 0,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    indicatorColor:
+                        Theme.of(context).colorScheme.inversePrimary,
+                    onDestinationSelected: _onItemTapped,
+                    labelType: NavigationRailLabelType.all,
+                    destinations: [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.home),
+                        label: Text('Home'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.book),
+                        label: Text('Dictionary'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.bookmark),
+                        label: Text('Collection'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.gamepad),
+                        label: Text('Memory'),
+                      ),
+                    ],
+                  ),
+                  const VerticalDivider(
+                    thickness: 1,
+                    width: 1,
+                    color: Colors.grey,
+                  ),
+                  Expanded(child: mainScreen[_selectedIndex]),
+                ],
+              ),
+            );
+
+    return FutureBuilder(
+      future: _completer.future,
+      builder: (context, snapshot) {
+        if (ConnectionState.done != snapshot.connectionState) {
+          return Scaffold(body: const LinearProgressIndicator());
+        } else {
+          return scaffold;
+        }
+      },
+    );
   }
 }
 
@@ -203,7 +254,12 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
           actions: [
-            IconButton(icon: Icon(Icons.contrast), onPressed: () {}),
+            IconButton(
+              icon: Icon(Icons.info_outline),
+              onPressed: () {
+                showLicensePage(context: context, applicationName: "Miyabi");
+              },
+            ),
             IconButton(
               icon: Icon(Icons.settings),
               onPressed: () {
@@ -242,12 +298,6 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-
-
-
-
-
-
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
@@ -265,9 +315,44 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   @override
   void initState() {
-    _installed = Database.isDatabaseInstalled();
     super.initState();
+    _installed = Database.isDatabaseInstalled();
+    initialToggle();
   }
+
+  void initialToggle() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var local = prefs.getBool("useLocalDictionary");
+    if (local != null) {
+      setState(() {
+        _toggled = local;
+      });
+    }
+  }
+
+  void toggle() async {
+    setState(() => _toggled = !_toggled);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("useLocalDictionary", _toggled);
+  }
+
+  void delete() async {
+    setState(() {
+      _installed = Database.delete();
+    });
+  }
+
+  void install() async {
+    setState(() {
+      _installed = Database.download();
+    });
+  }
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -279,20 +364,23 @@ class _SettingsDialogState extends State<SettingsDialog> {
             FutureBuilder(
               future: _installed,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (true == snapshot.data) {  //The compiler gives an error if this condition isn't written explicitly.
-                    return IconButton(
-                      icon: Icon(Icons.download),
-                      onPressed: () => {},
-                    );
+                if (ConnectionState.done == snapshot.connectionState) {
+                  if (true == snapshot.data) {
+                    //The compiler gives an error if this condition isn't written explicitly
+                      return IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: delete,
+                      );
+                  } else {
+                      return IconButton(
+                        icon: Icon(Icons.download),
+                        onPressed: install,
+                      );
+                    }
                   }
-                  else {
-                    return IconButton(icon: Icon(Icons.delete), onPressed: () => {});
-                  }
+                   else {
+                  return CircularProgressIndicator();
                 }
-                else {
-                    return CircularProgressIndicator();
-                  }
               },
             ),
           ],
@@ -303,7 +391,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
             "Enabling this option is recommended in case of slow internet speed or if you're using mobile data. Not recommended with slow or older devices.",
           ),
           value: _toggled,
-          onChanged: (value) => setState(() => _toggled = !_toggled),
+          onChanged: (value) => toggle(),
         ),
       ],
     );
