@@ -9,10 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'firebase_options.dart';
 import 'saved_words.dart';
-import 'memory.dart';
+import 'matching.dart';
 import 'dictionary.dart';
 import 'login.dart';
-import 'package:web/web.dart' as web;
 import 'database.dart';
 
 var auth = FirebaseAuth.instance;
@@ -53,7 +52,7 @@ class MainApp extends StatelessWidget {
           onPrimary: Colors.black,
           secondary: Color.fromARGB(255, 122, 239, 239),
           onSecondary: Colors.grey,
-          error: Colors.yellow,
+          error: Colors.red,
           onError: Colors.red,
           surface: Colors.white,
           onSurface: Colors.black,
@@ -76,10 +75,9 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  Completer _completer = Completer();
+  final Completer _completer = Completer();
 
   void initialize() async {
-    //TODO: Errors management?
     tagMap = await Database.retrieveTags();
     await GoogleFonts.pendingFonts([
       GoogleFonts.shipporiMincho(),
@@ -158,7 +156,7 @@ class _MyHomePageState extends State<HomePage> {
       ),
       DictionaryList(),
       SavedWords(),
-      MemoryGame(),
+      MatchingGame(),
     ];
 
     var scaffold =
@@ -185,7 +183,7 @@ class _MyHomePageState extends State<HomePage> {
 
                   NavigationDestination(
                     icon: Icon(Icons.gamepad),
-                    label: 'Memory',
+                    label: 'Matching',
                   ),
                 ],
               ),
@@ -217,7 +215,7 @@ class _MyHomePageState extends State<HomePage> {
                       ),
                       NavigationRailDestination(
                         icon: Icon(Icons.gamepad),
-                        label: Text('Memory'),
+                        label: Text('Matching'),
                       ),
                     ],
                   ),

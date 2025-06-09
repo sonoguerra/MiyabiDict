@@ -33,7 +33,6 @@ class Database {
                 : Uri.https(_domain, "/search/kanji/$q");
     }
     if (!window.navigator.onLine || (prefs.getBool("useLocalDictionary") ?? false)) {
-      print("offline");
       IDBDatabase? database;
       var request = window.indexedDB.open("vocabulary", 1);
 
@@ -41,8 +40,6 @@ class Database {
         database = request.result as IDBDatabase;
         var databaseTransaction = database?.transaction("words".toJS);
         var req = databaseTransaction?.objectStore("words").getAll();
-
-        
         req?.onsuccess = ((Event event) {
           var res = (req.result as JSArray).toDart;
 
@@ -90,7 +87,6 @@ class Database {
       return completer.future;
     }
     else {
-      print("online");
       var response = await http.get(resource);
       var partial = jsonDecode(response.body)['words'];
 
@@ -102,7 +98,6 @@ class Database {
     }
   }
 
-  //TODO: Managing errors
   static Future<bool> download() async {
     IDBDatabase? database;
     Uri resource = Uri.https(_domain, "/dictionary/common");
@@ -118,7 +113,7 @@ class Database {
 
     request.onupgradeneeded = ((Event event) {
       database = request.result as IDBDatabase;
-      var store = database?.createObjectStore("words", IDBObjectStoreParameters(keyPath: "id".toJS));
+      database?.createObjectStore("words", IDBObjectStoreParameters(keyPath: "id".toJS));
 
       var trn = request.transaction!;
       var obj = trn.objectStore("words");
@@ -134,7 +129,7 @@ class Database {
         and consequently gets output as some sort of JS object that can be inserted into the IndexedDB.
         */
         var vocab = Map<String, dynamic>.of(dictionary[i]);
-        var r = obj.put(vocab.jsify());
+        obj.put(vocab.jsify());
       }
 
       trn.onerror = ((Event event) {
@@ -147,10 +142,12 @@ class Database {
 
     }).toJS;
 
+    
+    
     //According to documentation errors "bubble" up.
     database?.onerror =
         ((Event event) {
-          print("Database error.");
+          completer.completeError("An unknown error has occurred.");
         }).toJS;
 
     return completer.future;

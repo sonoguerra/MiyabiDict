@@ -13,6 +13,7 @@ class Vocabulary {
 
   @JsonKey(name: "sense")
   final List<JSense> senses;
+  
   final List<Reading> kana;
 
   Vocabulary(this.id, this.kanjis, this.senses, this.kana);
@@ -20,17 +21,29 @@ class Vocabulary {
   String get word => (kanjis.isNotEmpty && kanjis[0].common) ? kanjis[0].text : kana[0].text;
   String get mainReading => kana[0].text;
 
-  //TODO: reading for each of the forms
   List<String> get forms {
-    List<String> res = [];
+    Set<String> res = {};
     for (int i = 0; i < kanjis.length; i++) {
-      res.add(kanjis[i].text);
+      String variant = "${kanjis[i].text} (";
+      List<String> readings = [];
+      for (int j = 0; j < kana.length; j++) {
+        if (kana[j].appliesToKanji.contains('*') || kana[j].appliesToKanji.contains(kanjis[i].text)) {
+          readings.add(kana[j].text);
+        }
+        else if (kana[j].appliesToKanji.isEmpty) {
+          res.add(kana[j].text);
+        }
+      }
+      variant += "${readings.join(',')})";
+      res.add(variant);
     }
-    return res;
+    return res.toList();
   }
 
   Set<String> get allTags {
     Set<String> res = {};
+
+
     for (int i = 0; i < kanjis.length; i++) {
       res.addAll(kanjis[i].tags);
     }
@@ -142,8 +155,6 @@ class JSense {
     for (int i = 0; i < meaning.length; i++) {
       elements.add(meaning[i].text);
     }
-
-
     return elements.join(" | ");
   }
 

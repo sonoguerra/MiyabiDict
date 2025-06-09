@@ -22,7 +22,7 @@ class JPUtils {
 
   static Map<String, String> sentences = {
     "Nice weather today": "今日はいい天気ですね",
-    "Going to far to turn back": "乗り掛かった舟",
+    "Going too far to turn back": "乗り掛かった舟",
     "Prevention is better than curing": "転ばぬ先の杖",
     "Like father, like son": "カエルの子はカエル",
     "Some things are better left unsaid": "言わぬが花",

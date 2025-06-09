@@ -5,16 +5,16 @@ import 'jputils.dart';
 
 import 'dart:math';
 
-class MemoryGame extends StatefulWidget {
-  const MemoryGame({super.key});
+class MatchingGame extends StatefulWidget {
+  const MatchingGame({super.key});
 
   @override
-  _MemoryGameState createState() => _MemoryGameState();
+  createState() => _MatchingGameState();
 }
 
-class _MemoryGameState extends State<MemoryGame> {
-  var selectedWord;
-  var selectedCharacter;
+class _MatchingGameState extends State<MatchingGame> {
+  String selectedWord = "";
+  String selectedCharacter = "";
   int counter = 1;
   int rightChoices = 0;
   int? selectedIndex;
@@ -42,11 +42,18 @@ class _MemoryGameState extends State<MemoryGame> {
           selectedCharacter == "ヱ" ||
           selectedCharacter == "ゑ");
       List<Vocabulary> result = await Database.search(selectedCharacter);
+
       if (result.isEmpty) {
         i--;
         continue;
       }
-      list.add(result[randomNumber(0, result.length - 1)]);
+
+      var vocab = result[randomNumber(0, result.length - 1)];
+      if (list.contains(vocab)) {
+        i--;
+        continue;
+      }
+      list.add(vocab);
     }
     selectedWord = list[randomNumber(0, 2)].word;
     return list;
@@ -57,6 +64,7 @@ class _MemoryGameState extends State<MemoryGame> {
     return min + random.nextInt(max - min + 1);
   }
 
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -77,7 +85,7 @@ class _MemoryGameState extends State<MemoryGame> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Hai completato il gioco con un totale di $rightChoices/10",
+                    "Score: $rightChoices/10",
                     style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
@@ -105,7 +113,7 @@ class _MemoryGameState extends State<MemoryGame> {
                     ),
                     child: Center(
                       child: Text(
-                        "Gioca Ancora!",
+                        "Retry!",
                         style: Theme.of(context).textTheme.bodyLarge,
                         textAlign: TextAlign.center,
                         softWrap: true,
@@ -130,7 +138,7 @@ class _MemoryGameState extends State<MemoryGame> {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  "$selectedWord",
+                  selectedWord,
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                   softWrap: true,

@@ -27,7 +27,7 @@ class WordPage extends StatelessWidget {
               Row(
                 spacing: 10.0,
                 children: [
-                  Text(
+                  SelectableText(
                     displayed.word,
                     style: GoogleFonts.shipporiMincho(fontSize: 65.0),
                   ),
@@ -48,7 +48,7 @@ class WordPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  AddVocab(displayed),
+                  AddVocab(),
                 ],
               ),
               ListView.separated(
@@ -161,25 +161,22 @@ class WordPage extends StatelessWidget {
 }
 
 class AddVocab extends StatefulWidget {
-  final Vocabulary displayed;
-
-  const AddVocab(this.displayed, {super.key});
+  const AddVocab({super.key});
 
   @override
-  State<AddVocab> createState() => _AddVocabState(displayed);
+  State<AddVocab> createState() => _AddVocabState();
 }
 
 class _AddVocabState extends State<AddVocab> {
   final database = FirebaseFirestore.instance;
   bool toggled = false;
-  final Vocabulary displayed;
+  late Vocabulary displayed;
   bool loading = true;
-
-  _AddVocabState(this.displayed);
 
   @override
   void initState() {
     super.initState();
+    displayed = context.findAncestorWidgetOfExactType<WordPage>()!.displayed;
     getCollection();
   }
 
@@ -241,20 +238,21 @@ class _AddVocabState extends State<AddVocab> {
       });
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    if (context.mounted) {
 
-
-      
-      SnackBar(
-        content: Text(
-          toggled ? "Removed from collection" : "Added to collection.",
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            toggled ? "Removed from collection" : "Added to collection.",
+          ),
         ),
-      ),
-    );
-    setState(() {
-      toggled = !toggled;
-    });
+      );
+
+      setState(() {
+        toggled = !toggled;
+      });
   }
+}
 
   @override
   Widget build(BuildContext context) {

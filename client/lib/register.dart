@@ -12,6 +12,10 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
+  final repeatPassword = TextEditingController();
+  bool wrongEmail = false;
+  bool badPassword = false;
+  bool alreadyEmail = false;
   final key = GlobalKey<FormState>();
 
   @override
@@ -30,39 +34,77 @@ class _RegisterScreenState extends State<RegisterScreen> {
           padding: EdgeInsets.all(16.0),
           width: 530,
           height: 600.0,
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(31.0)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(31.0),
+          ),
           child: Form(
             key: key,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 25.0,
               children: [
+
+
                 Text("Register", style: TextStyle(fontSize: 35.0)),
                 TextFormField(
-                  style: TextStyle(color: Colors.grey[300], backgroundColor: Colors.grey[300]),
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-
-
-                    
+                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                     labelText: "Email",
+                    border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   controller: email,
+                  validator: (value) {
+                    if (wrongEmail) {
+                      return "Invalid email.";
+                    }
+                    else if (alreadyEmail) {
+                      return "User with the supplied email already exists.";
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
-                  style: TextStyle(color: Colors.grey[300], backgroundColor: Colors.grey[300]),
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                     labelText: "Password",
+                    border: OutlineInputBorder(),
                   ),
                   obscureText: true,
                   controller: password,
+                  validator: (value) {
+                    if (badPassword) {
+                      return "Password too weak.";
+                    }
+                    return null;
+                  },
                 ),
-                OutlinedButton.icon(
+                TextFormField(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
+                  controller: repeatPassword,
+                  validator: (value) {
+                    if (value != password.text) {
+                      return "Passwords not matching.";
+                    }
+                    return null;
+                  },
+                ),
+                ElevatedButton.icon(
                   onPressed: () async {
+                    setState(() {
+                      wrongEmail = false;
+                      badPassword = false;
+                      alreadyEmail = false;
+                    });
                     try {
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      await FirebaseAuth.instance.createUserWithEmailAndPassword(
                         email: email.text,
                         password: password.text,
                       );
@@ -70,34 +112,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Navigator.of(context).pop();
                       }
                     } on FirebaseAuthException catch (e) {
-                      if (e.code == 'wrong-password') {
+                      if (e.code == 'weak-password') {
+                        setState(() {
+                          badPassword = true;
+                        });
+                      } else if (e.code == 'email-already-in-use') {
+                        setState(() {
+                          alreadyEmail = true;
+                        });
+                      } else if (e.code == 'invalid-email') {
+                        setState(() {
+                          wrongEmail = true;
+                        });
+                      }
+                      else {
                         if (context.mounted) {
-                          //Function block is async so this has to be checked.
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Wrong password.")),
-                          );
-                        }
-                      } else if (e.code == 'user-not-found') {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "User with the supplied email does not exist.",
-                              ),
-                            ),
-                          );
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something unexpected happened. Try again later.")));
                         }
                       }
                     }
+                    key.currentState!.validate();
                   },
                   label: Text('Register', style: TextStyle(fontSize: 21.0)),
                   icon: const Icon(Icons.key),
                 ),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("New user?", style: TextStyle(fontSize: 12.0)), TextButton(child: Text("Register."), onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
-                },)]),
-                Text("or"),
-                ElevatedButton.icon(label: Text("Register as guest"), icon: Icon(Icons.person), onPressed: () {},)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Already registered?", style: TextStyle(fontSize: 12.0)),
+                    TextButton(
+                      child: Text("Login."),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoginScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

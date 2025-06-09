@@ -12,6 +12,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
+  bool wrongEmail = false;
+  bool wrongPassword = false;
   final key = GlobalKey<FormState>();
 
   @override
@@ -40,28 +42,45 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 25.0,
               children: [
+
+
                 Text("Login", style: TextStyle(fontSize: 35.0)),
-
-
-
                 TextFormField(
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                     labelText: "Email",
+                    border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   controller: email,
+                  validator: (value) {
+                    if (wrongEmail) {
+                      return "User with the supplied email does not exist.";
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                     labelText: "Password",
+                    border: OutlineInputBorder(),
                   ),
                   obscureText: true,
                   controller: password,
+                  validator: (value) {
+                    if (wrongPassword) {
+                      return "Wrong password";
+                    }
+                    return null;
+                  },
                 ),
                 ElevatedButton.icon(
                   onPressed: () async {
+                    setState(() {
+                      wrongPassword = false;
+                      wrongEmail = false;
+                    });
                     try {
                       await FirebaseAuth.instance.signInWithEmailAndPassword(
                         email: email.text,
@@ -71,25 +90,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.of(context).pop();
                       }
                     } on FirebaseAuthException catch (e) {
-                      if (e.code == 'wrong-password') {
+                      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+                        setState(() {
+                          wrongPassword = true;
+                        });
+                      } else if (e.code == 'user-disabled' || e.code == 'invalid-email' || e.code == 'user-not-found') {
+                        setState(() {
+                          wrongEmail = true;
+                        });
+                      }
+                      else {
                         if (context.mounted) {
-                          //Function block is async so this has to be checked.
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Wrong password.")),
-                          );
-                        }
-                      } else if (e.code == 'user-not-found') {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "User with the supplied email does not exist.",
-                              ),
-                            ),
-                          );
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something unexpected happened. Try again later.")));
                         }
                       }
                     }
+                    key.currentState!.validate();
                   },
                   label: Text('Login', style: TextStyle(fontSize: 21.0)),
                   icon: const Icon(Icons.key),
@@ -101,7 +117,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextButton(
                       child: Text("Register."),
                       onPressed: () {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterScreen(),));
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterScreen(),
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -118,7 +139,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                     } on FirebaseAuthException catch (e) {
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error.")));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text("Error. ${e.code}")));
                       }
                     }
                   },
