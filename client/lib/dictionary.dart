@@ -6,19 +6,15 @@ import 'database.dart';
 import 'entry.dart';
 import 'wordpage.dart';
 
-class DictionaryList extends StatelessWidget {
+class DictionaryList extends StatefulWidget {
   const DictionaryList({super.key});
 
   @override
-  Widget build(BuildContext context) => _AsyncSearch();
+  State<StatefulWidget> createState() => _DictionaryListState();
+  
 }
 
-class _AsyncSearch extends StatefulWidget {
-  @override
-  _AsyncSearchState createState() => _AsyncSearchState();
-}
-
-class _AsyncSearchState extends State<_AsyncSearch> {
+class _DictionaryListState extends State<DictionaryList> {
   // shared_preferences package instance variable for saving in cache
   final Future<SharedPreferencesWithCache> _prefs =
       SharedPreferencesWithCache.create(
@@ -26,9 +22,10 @@ class _AsyncSearchState extends State<_AsyncSearch> {
       );
   final _db = FirebaseFirestore.instance;
   List<Vocabulary> _results = [];
-  late List<String> _prevQueries;
+  List<String> _prevQueries = [];
   late final SearchController _sc;
-  late bool _english = false;
+  bool _english = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -41,11 +38,20 @@ class _AsyncSearchState extends State<_AsyncSearch> {
   void _loadList() async {
     final SharedPreferencesWithCache prefs = await _prefs;
 
+    // if user not logged: data fetch from cache (if data exist)
     var queries = prefs.getStringList("history") ?? [];
 
     if (auth.currentUser != null) {
-      var res = await _db.collection("history").doc(auth.currentUser?.uid).get();
-      queries = (res.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+      final doc = _db.collection("history").doc(auth.currentUser!.uid);
+      doc.get().then((value) {
+        // if user already has saved history in db then fetch it, 
+        // else create entry in db. 
+        if (value.exists) {
+          queries = (value.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+        } else {
+          doc.set({"saved_res" : []});
+        }
+      },);
     }
 
     setState(() {
@@ -53,31 +59,40 @@ class _AsyncSearchState extends State<_AsyncSearch> {
     });
   }
 
-  // Saves previous queries in cache.
+  // saves previous queries in cache.
   void _saveResultInCache(List<String> q) async {
     final SharedPreferencesWithCache prefs = await _prefs;
     prefs.setStringList("history", q);
   }
 
   void _saveResultInFirebase(String q) async {
-    final document = _db.collection("history").doc(auth.currentUser!.uid);
-    await document.get().then((value) {
-      document.update({"saved_res" : FieldValue.arrayUnion([q])});
+    final doc = _db.collection("history").doc(auth.currentUser!.uid);
+    doc.get().then((value) {
+      // if user already has saved history in db then fetch it, 
+      // else create entry in db. 
+      if (value.exists) {
+        doc.update({"saved_res" : FieldValue.arrayUnion([q])});
+      } else {
+        doc.set({"saved_res" : []});
+      }
     });
   }
 
   void _removeResultInFirebase(String q) async {
-    final document = _db.collection("history").doc(auth.currentUser!.uid);
-    await document.get().then((value) {
-      document.update({"saved_res": FieldValue.arrayRemove([q])});
+    final doc = _db.collection("history").doc(auth.currentUser!.uid);
+    doc.get().then((value) {
+      doc.update({"saved_res": FieldValue.arrayRemove([q])});
     });
   }
 
   Future<void> _performSearch(String q) async {
+    setState(() {
+      _isLoading = true;
+    });
     final fetchedRes = await Database.search(q, english: _english);
 
     if (fetchedRes.isNotEmpty) {
-      if (!_prevQueries.contains(q)) { //possible null exception??
+      if (!_prevQueries.contains(q)) {
         setState(() {
           _prevQueries.add(q);
         });
@@ -92,6 +107,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
 
       setState(() {
         _results = fetchedRes;
+        _isLoading = false;
       });
     }
   }
@@ -189,7 +205,7 @@ class _AsyncSearchState extends State<_AsyncSearch> {
             },
           ),
         ),
-        // TODO: verify if there are alternatives
+        if (_isLoading) const CircularProgressIndicator(),
         Expanded(
           child: ListView.builder(
             shrinkWrap: true,
@@ -214,9 +230,9 @@ class _AsyncSearchState extends State<_AsyncSearch> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder:
-                          (context) => WordPage(
-                            _results[index],
-                          ),
+                        (context) => WordPage(
+                          _results[index],
+                        ),
                     ),
                   );
                 },

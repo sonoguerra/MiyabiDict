@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pwa_dict/database.dart';
 import 'package:pwa_dict/main.dart';
+import 'package:pwa_dict/wordpage.dart';
 
 class SavedWords extends StatefulWidget {
   const SavedWords({super.key});
@@ -46,6 +48,13 @@ class _SavedWordsState extends State<SavedWords> {
     await doc.update({"saved" : _words});
   }
 
+  void _pushNavigator(Map<String, dynamic> word) async {
+    var vocab = await Database.wordById(word["id"]);
+    if (context.mounted) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => WordPage(vocab)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -79,9 +88,13 @@ class _SavedWordsState extends State<SavedWords> {
                   trailing: IconButton(
                     onPressed: () => _removeWord(index), 
                     icon: _isHovered
-                      ? Icon(Icons.bookmark)
-                      : Icon(Icons.bookmark_remove)
+                      ? Icon(Icons.bookmark_remove)
+                      : Icon(Icons.bookmark),
+                    onHover: (value) => setState(() {
+                      _isHovered = value;
+                    }),
                   ),
+                  onTap: () => _pushNavigator(_words[index]),
                 );
               },
             );
