@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'main.dart';
 import 'package:kana_kit/kana_kit.dart';
+import 'uielems.dart';
 
 class WordPage extends StatelessWidget {
   final Vocabulary displayed;
@@ -148,7 +149,7 @@ class WordPage extends StatelessWidget {
               ListView.builder(
                 itemBuilder:
                     (context, index) =>
-                        Text("${index + 1}. ${displayed.forms[index]}"),
+                        SelectableText("${index + 1}. ${displayed.forms[index]}"),
                 itemCount: displayed.forms.length,
                 shrinkWrap: true,
               ),
