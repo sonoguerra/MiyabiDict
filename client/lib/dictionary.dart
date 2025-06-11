@@ -11,7 +11,6 @@ class DictionaryList extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _DictionaryListState();
-  
 }
 
 class _DictionaryListState extends State<DictionaryList> {
@@ -44,14 +43,16 @@ class _DictionaryListState extends State<DictionaryList> {
     if (auth.currentUser != null) {
       final doc = _db.collection("history").doc(auth.currentUser!.uid);
       doc.get().then((value) {
-        // if user already has saved history in db then fetch it, 
-        // else create entry in db. 
+        // if user already has saved history in db then fetch it,
+        // else create entry in db.
         if (value.exists) {
-          queries = (value.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ?? [];
+          queries =
+              (value.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ??
+              [];
         } else {
-          doc.set({"saved_res" : []});
+          doc.set({"saved_res": []});
         }
-      },);
+      });
     }
 
     setState(() {
@@ -68,12 +69,14 @@ class _DictionaryListState extends State<DictionaryList> {
   void _saveResultInFirebase(String q) async {
     final doc = _db.collection("history").doc(auth.currentUser!.uid);
     doc.get().then((value) {
-      // if user already has saved history in db then fetch it, 
-      // else create entry in db. 
+      // if user already has saved history in db then fetch it,
+      // else create entry in db.
       if (value.exists) {
-        doc.update({"saved_res" : FieldValue.arrayUnion([q])});
+        doc.update({
+          "saved_res": FieldValue.arrayUnion([q]),
+        });
       } else {
-        doc.set({"saved_res" : []});
+        doc.set({"saved_res": []});
       }
     });
   }
@@ -81,7 +84,9 @@ class _DictionaryListState extends State<DictionaryList> {
   void _removeResultInFirebase(String q) async {
     final doc = _db.collection("history").doc(auth.currentUser!.uid);
     doc.get().then((value) {
-      doc.update({"saved_res": FieldValue.arrayRemove([q])});
+      doc.update({
+        "saved_res": FieldValue.arrayRemove([q]),
+      });
     });
   }
 
@@ -99,17 +104,22 @@ class _DictionaryListState extends State<DictionaryList> {
 
         if (auth.currentUser == null) {
           _saveResultInCache(_prevQueries);
-        }
-        else {
+        } else {
           _saveResultInFirebase(q);
         }
       }
-
-      setState(() {
-        _results = fetchedRes;
-        _isLoading = false;
-      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("No results found...")
+        )
+      );
     }
+
+    setState(() {
+      _results = fetchedRes;
+      _isLoading = false;
+    });
   }
 
   void _removeResult(String q) {
@@ -197,9 +207,9 @@ class _DictionaryListState extends State<DictionaryList> {
                       _sc.closeView("");
                       _removeResult(res);
                       _sc.openView();
-                    }, 
-                    icon: Icon(Icons.delete)
-                  )
+                    },
+                    icon: Icon(Icons.delete),
+                  ),
                 );
               }).toList();
             },
@@ -229,10 +239,7 @@ class _DictionaryListState extends State<DictionaryList> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder:
-                        (context) => WordPage(
-                          _results[index],
-                        ),
+                      builder: (context) => WordPage(_results[index]),
                     ),
                   );
                 },
