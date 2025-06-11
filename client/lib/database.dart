@@ -216,7 +216,8 @@ class Database {
         var req = databaseTransaction?.objectStore("words").get(id.toJS);
         
         req?.onsuccess = ((Event event) {
-          completer.complete(Vocabulary.fromJson(jsonDecode(req.result.toString())));
+          //JS object to JSON string and then to Dart map and Vocabulary object.
+          completer.complete(Vocabulary.fromJson(jsonDecode(stringify(req.result))));
         }).toJS;
       }).toJS;
 

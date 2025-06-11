@@ -78,6 +78,9 @@ class HomePage extends StatefulWidget {
 class _MyHomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final Completer _completer = Completer();
+  MapEntry<String, String> randomSentence = JPUtils.sentences.entries.elementAt(
+    Random().nextInt(JPUtils.sentences.length),
+  );
 
   void initialize() async {
     tagMap = await Database.retrieveTags();
@@ -105,20 +108,31 @@ class _MyHomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    MapEntry<String, String> randomSentence = JPUtils.sentences.entries.elementAt(Random().nextInt(JPUtils.sentences.length));
-
     List<Widget> mainScreen = [
       Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 16.0,
           children: [
-            Tooltip(message: "Welcome to Miyabi!", child: Text("みやびへようこそ！", style: GoogleFonts.shipporiMincho(fontSize: 38.0))),
-            Column(children: [Text(randomSentence.value),
-            Text("Meaning: ${randomSentence.key}", style: GoogleFonts.notoSansJp(color: Colors.grey, fontStyle: FontStyle.italic))])
+            Tooltip(
+              message: "Welcome to Miyabi!",
+              child: Text(
+                "みやびへようこそ！",
+                style: GoogleFonts.shipporiMincho(fontSize: 38.0),
+              ),
+            ),
+            Column(
+              children: [
+                Text(randomSentence.value),
+                Text(
+                  "Meaning: ${randomSentence.key}",
+                  style: GoogleFonts.notoSansJp(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -127,89 +141,99 @@ class _MyHomePageState extends State<HomePage> {
       MatchingGame(),
     ];
 
-    var scaffold =
-        (MediaQuery.of(context).orientation == Orientation.portrait)
-            ? Scaffold(
-              appBar: CustomBar(),
-              body: mainScreen[_selectedIndex],
 
-              bottomNavigationBar: NavigationBar(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                indicatorColor: Theme.of(context).colorScheme.inversePrimary,
-                selectedIndex: _selectedIndex,
-                onDestinationSelected: _onItemTapped,
-                destinations: [
-                  NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-                  NavigationDestination(
-                    icon: Icon(Icons.book),
-                    label: 'Dictionary',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.bookmark),
-                    label: 'Collection',
-                  ),
 
-                  NavigationDestination(
-                    icon: Icon(Icons.gamepad),
-                    label: 'Matching',
-                  ),
-                ],
-              ),
-            )
-            : Scaffold(
-              body: Row(
-                children: [
-                  NavigationRail(
-                    leading: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsetsGeometry.all(16.0),
-                          child: Text(
-                            "みやび",
-                            style: GoogleFonts.shipporiMincho(fontSize: 38.0),
-                          ),
+
+
+
+    var scaffold = LayoutBuilder(
+      builder: (context, constraints) {
+        //Material specification for large screen
+        if (constraints.maxWidth > 600) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  leading: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsetsGeometry.all(16.0),
+                        child: Text(
+                          "みやび",
+                          style: GoogleFonts.shipporiMincho(fontSize: 38.0),
                         ),
-                        Row(children: [LoginOut(),
-                        InfoButton(),
-                        SettingsButton()]),
-                      ],
-                    ),
-                    selectedIndex: _selectedIndex,
-                    extended: true,
-                    groupAlignment: 0,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    indicatorColor:
-                        Theme.of(context).colorScheme.inversePrimary,
-                    onDestinationSelected: _onItemTapped,
-                    labelType: NavigationRailLabelType.none,
-                    destinations: [
-                      NavigationRailDestination(
-                        icon: Icon(Icons.home),
-                        label: Text('Home'),
                       ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.book),
-                        label: Text('Dictionary'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.bookmark),
-                        label: Text('Collection'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.gamepad),
-                        label: Text('Matching'),
+                      Row(
+                        children: [LoginOut(), InfoButton(), SettingsButton()],
                       ),
                     ],
                   ),
-                  const VerticalDivider(
-                    thickness: 1,
-                    width: 1,
-                    color: Colors.grey,
-                  ),
-                  Expanded(child: mainScreen[_selectedIndex]),
-                ],
-              ),
-            );
+                  selectedIndex: _selectedIndex,
+                  extended: true,
+                  groupAlignment: 0,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  indicatorColor: Theme.of(context).colorScheme.inversePrimary,
+                  onDestinationSelected: _onItemTapped,
+                  labelType: NavigationRailLabelType.none,
+                  destinations: [
+                    NavigationRailDestination(
+                      label: Text('Home'),
+                      icon: Icon(Icons.home),
+                    ),
+                    NavigationRailDestination(
+                      label: Text('Dictionary'),
+                      icon: Icon(Icons.book),
+                    ),
+                    NavigationRailDestination(
+                      label: Text('Collection'),
+                      icon: Icon(Icons.bookmark),
+                    ),
+                    NavigationRailDestination(
+                      label: Text('Matching'),
+                      icon: Icon(Icons.gamepad),
+                    ),
+                  ],
+                ),
+                const VerticalDivider(
+                  thickness: 1,
+                  width: 1,
+                  color: Colors.grey,
+                ),
+                Expanded(child: mainScreen[_selectedIndex]),
+              ],
+            ),
+          );
+        } else {
+          return Scaffold(
+            appBar: CustomBar(),
+            body: mainScreen[_selectedIndex],
+
+            bottomNavigationBar: NavigationBar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              indicatorColor: Theme.of(context).colorScheme.inversePrimary,
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onItemTapped,
+              destinations: [
+                NavigationDestination(label: 'Home', icon: Icon(Icons.home)),
+                NavigationDestination(
+                  label: 'Dictionary',
+                  icon: Icon(Icons.book),
+                ),
+                NavigationDestination(
+                  label: 'Collection',
+                  icon: Icon(Icons.bookmark),
+                ),
+                NavigationDestination(
+                  label: 'Matching',
+                  icon: Icon(Icons.gamepad),
+
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
 
     return FutureBuilder(
       future: _completer.future,

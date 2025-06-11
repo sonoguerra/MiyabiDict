@@ -42,9 +42,9 @@ class WordPage extends StatelessWidget {
                           ? ""
                           : "【${displayed.kana[0].text}】",
                       style: GoogleFonts.shipporiMincho(
-                        fontSize: 35.0,
 
-                        
+
+                        fontSize: 35.0,
                         color: Color.fromARGB(201, 0, 0, 0),
                       ),
                     ),
@@ -111,9 +111,9 @@ class WordPage extends StatelessWidget {
                       ...List<
                         Widget
                       >.generate(displayed.senses[index].related.length, (i) {
-                        return Text(
+                        return SelectableText(
                           "see also: ${displayed.senses[index].related[i][0]}",
-                          style: GoogleFonts.ebGaramond(),
+                          style: GoogleFonts.shipporiMincho(),
                         );
                       }),
                       ...List<Widget>.generate(
@@ -121,7 +121,7 @@ class WordPage extends StatelessWidget {
                         (i) {
                           return Text(
                             "antonym: ${displayed.senses[index].antonym[i][0]}",
-                            style: GoogleFonts.ebGaramond(),
+                            style: GoogleFonts.shipporiMincho(),
                           );
                         },
                       ),
@@ -142,14 +142,15 @@ class WordPage extends StatelessWidget {
                   return Column(children: [Divider(), SizedBox(height: 16.0)]);
                 },
                 shrinkWrap: true,
-              
-              
-              
+
+
               ),
               ListView.builder(
                 itemBuilder:
-                    (context, index) =>
-                        SelectableText("${index + 1}. ${displayed.forms[index]}"),
+                    (context, index) => SelectableText(
+                      "${index + 1}. ${displayed.forms[index]}",
+                      style: GoogleFonts.shipporiMincho(),
+                    ),
                 itemCount: displayed.forms.length,
                 shrinkWrap: true,
               ),
@@ -240,8 +241,9 @@ class _AddVocabState extends State<AddVocab> {
     }
 
     if (context.mounted) {
-
       ScaffoldMessenger.of(context).showSnackBar(
+
+
         SnackBar(
           content: Text(
             toggled ? "Removed from collection" : "Added to collection.",
@@ -252,8 +254,8 @@ class _AddVocabState extends State<AddVocab> {
       setState(() {
         toggled = !toggled;
       });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {

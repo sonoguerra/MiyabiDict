@@ -23,11 +23,20 @@ class _MatchingGameState extends State<MatchingGame> {
   bool isTapDisabled = false;
   List<Vocabulary> list = [];
   late Future<List<Vocabulary>> _futureWords;
+  List<Vocabulary> _backupWords = [];
 
   @override
   void initState() {
     super.initState();
-    _futureWords = fetchWords();
+    if (_backupWords.isNotEmpty) {
+      _futureWords = Future.value(_backupWords);
+    }
+    else {
+      _futureWords = fetchWords();
+      _futureWords.then((future) {
+        _backupWords = future;
+      });
+    }
   }
 
   Future<List<Vocabulary>> fetchWords() async {
@@ -193,8 +202,8 @@ class _MatchingGameState extends State<MatchingGame> {
                       }
                     },
                     child: Container(
-                      width: screenWidth * 0.30,
-                      height: screenHeight * 0.35,
+                      width: 300,
+                      height: 200,
                       decoration: BoxDecoration(
                         color: getColor(),
                         borderRadius: BorderRadius.circular(32.0),
@@ -207,7 +216,7 @@ class _MatchingGameState extends State<MatchingGame> {
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                             softWrap: true,
-                            overflow: TextOverflow.visible,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),

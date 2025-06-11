@@ -137,10 +137,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       children: [
-        Row(
-          children: [
-            Text("Download dictionary"),
-            FutureBuilder(
+        ListTile(
+            title: Text("Download dictionary"),
+            trailing: FutureBuilder(
               future: _installed,
               builder: (context, snapshot) {
                 if (ConnectionState.done == snapshot.connectionState) {
@@ -161,8 +160,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 }
               },
             ),
-          ],
         ),
+        const Divider(),
         SwitchListTile(
           title: Text("Use locally installed dictionary as default."),
           subtitle: Text(
