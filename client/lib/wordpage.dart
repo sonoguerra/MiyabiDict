@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'main.dart';
 import 'package:kana_kit/kana_kit.dart';
+import 'uielems.dart';
 
 class WordPage extends StatelessWidget {
   final Vocabulary displayed;
@@ -27,7 +28,7 @@ class WordPage extends StatelessWidget {
               Row(
                 spacing: 10.0,
                 children: [
-                  Text(
+                  SelectableText(
                     displayed.word,
                     style: GoogleFonts.shipporiMincho(fontSize: 65.0),
                   ),
@@ -41,14 +42,14 @@ class WordPage extends StatelessWidget {
                           ? ""
                           : "【${displayed.kana[0].text}】",
                       style: GoogleFonts.shipporiMincho(
-                        fontSize: 35.0,
 
-                        
+
+                        fontSize: 35.0,
                         color: Color.fromARGB(201, 0, 0, 0),
                       ),
                     ),
                   ),
-                  AddVocab(displayed),
+                  AddVocab(),
                 ],
               ),
               ListView.separated(
@@ -61,8 +62,9 @@ class WordPage extends StatelessWidget {
                     i++
                   ) {
                     chips.add(
-                      Tooltip(message: tagMap[displayed.senses[index].tags[i]], child: 
-                        Container(
+                      Tooltip(
+                        message: tagMap[displayed.senses[index].tags[i]],
+                        child: Container(
                           padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                           decoration: BoxDecoration(
                             color: Colors.grey[800],
@@ -76,7 +78,7 @@ class WordPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                      )
+                      ),
                     );
                   }
                   return Column(
@@ -109,9 +111,9 @@ class WordPage extends StatelessWidget {
                       ...List<
                         Widget
                       >.generate(displayed.senses[index].related.length, (i) {
-                        return Text(
+                        return SelectableText(
                           "see also: ${displayed.senses[index].related[i][0]}",
-                          style: GoogleFonts.ebGaramond(),
+                          style: GoogleFonts.shipporiMincho(),
                         );
                       }),
                       ...List<Widget>.generate(
@@ -119,7 +121,7 @@ class WordPage extends StatelessWidget {
                         (i) {
                           return Text(
                             "antonym: ${displayed.senses[index].antonym[i][0]}",
-                            style: GoogleFonts.ebGaramond(),
+                            style: GoogleFonts.shipporiMincho(),
                           );
                         },
                       ),
@@ -140,13 +142,15 @@ class WordPage extends StatelessWidget {
                   return Column(children: [Divider(), SizedBox(height: 16.0)]);
                 },
                 shrinkWrap: true,
+
+
               ),
               ListView.builder(
                 itemBuilder:
-                    (context, index) =>
-
-
-                        Text("${index + 1}. ${displayed.forms[index]}"),
+                    (context, index) => SelectableText(
+                      "${index + 1}. ${displayed.forms[index]}",
+                      style: GoogleFonts.shipporiMincho(),
+                    ),
                 itemCount: displayed.forms.length,
                 shrinkWrap: true,
               ),
@@ -159,20 +163,47 @@ class WordPage extends StatelessWidget {
 }
 
 class AddVocab extends StatefulWidget {
-  final Vocabulary displayed;
-
-  const AddVocab(this.displayed, {super.key});
+  const AddVocab({super.key});
 
   @override
-  State<AddVocab> createState() => _AddVocabState(displayed);
+  State<AddVocab> createState() => _AddVocabState();
 }
 
 class _AddVocabState extends State<AddVocab> {
   final database = FirebaseFirestore.instance;
   bool toggled = false;
-  final Vocabulary displayed;
+  late Vocabulary displayed;
+  bool loading = true;
 
-  _AddVocabState(this.displayed);
+  @override
+  void initState() {
+    super.initState();
+    displayed = context.findAncestorWidgetOfExactType<WordPage>()!.displayed;
+    getCollection();
+  }
+
+  void getCollection() async {
+    var present = false;
+    if (auth.currentUser != null) {
+      var doc =
+          await database.collection("saved").doc(auth.currentUser!.uid).get();
+      if (doc.exists) {
+        List collection = doc['saved'];
+        for (int i = 0; i < collection.length; i++) {
+          if (collection.elementAt(i)['id'] == displayed.id) {
+            present = true;
+            break;
+          }
+        }
+      }
+    }
+    setState(() {
+      toggled = present;
+      loading = false;
+    });
+  }
+
+  void a() {}
 
   void denied() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -209,16 +240,21 @@ class _AddVocabState extends State<AddVocab> {
       });
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          toggled ? "Removed from collection" : "Added to collection.",
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+
+
+        SnackBar(
+          content: Text(
+            toggled ? "Removed from collection" : "Added to collection.",
+          ),
         ),
-      ),
-    );
-    setState(() {
-      toggled = !toggled;
-    });
+      );
+
+      setState(() {
+        toggled = !toggled;
+      });
+    }
   }
 
   @override
@@ -226,6 +262,9 @@ class _AddVocabState extends State<AddVocab> {
     return StreamBuilder(
       stream: auth.userChanges(),
       builder: (context, snapshot) {
+        if (loading) {
+          return CircularProgressIndicator(); //Not showing the button while the retrieval is still loading might be semantically better for the end user.
+        }
         return IconButton(
           icon:
               toggled
@@ -242,13 +281,6 @@ class BookmarkLabel extends StatelessWidget {
   final List<Widget> children;
 
   const BookmarkLabel({super.key, required this.children});
-
-
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
