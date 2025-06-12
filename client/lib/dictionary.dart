@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pwa_dict/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,38 +28,54 @@ class _DictionaryListState extends State<DictionaryList> {
   late final SearchController _sc;
   bool _english = false;
   bool _isLoading = false;
-
+  StreamSubscription<User?>? _authStateChangesSubscription;
+  
   @override
   void initState() {
     super.initState();
     _sc = SearchController();
-    _loadList();
+    _loadList(); // init when the widget is created
+
+    // listener for authentication changes
+    _authStateChangesSubscription = auth.authStateChanges().listen((user) {
+      // check if the widget is still mounted before calling _loadList
+      if (mounted) {
+        // if the user logs in or logs out then reload the list to reflect the correct data source (Firebase or cache).
+        _loadList();
+      }
+    });
   }
 
   // Loads saved words list from cache
   void _loadList() async {
-    final SharedPreferencesWithCache prefs = await _prefs;
+    List<String> queries = [];
+    setState(() {
+      _isLoading = true;
+    });
 
-    // if user not logged: data fetch from cache (if data exist)
-    var queries = prefs.getStringList("history") ?? [];
-
-    if (auth.currentUser != null) {
+    // if user is not logged then fetch data from cache 
+    // else fetch data from Firebase 
+    if (auth.currentUser == null) {
+      final SharedPreferencesWithCache prefs = await _prefs;
+      queries = prefs.getStringList("history") ?? [];
+    } else {
       final doc = _db.collection("history").doc(auth.currentUser!.uid);
-      doc.get().then((value) {
-        // if user already has saved history in db then fetch it,
-        // else create entry in db.
-        if (value.exists) {
-          queries =
-              (value.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ??
-              [];
-        } else {
-          doc.set({"saved_res": []});
-        }
-      });
+      final value = await doc.get();
+
+      // if user already has saved history in db then fetch it,
+      // else create entry in db.
+      if (value.exists) {
+        queries =
+            (value.data()?["saved_res"] as List<dynamic>?)?.cast<String>() ??
+            [];
+      } else {
+        doc.set({"saved_res": []});
+      }
     }
 
     setState(() {
       _prevQueries = queries;
+      _isLoading = false;
     });
   }
 
@@ -140,7 +159,8 @@ class _DictionaryListState extends State<DictionaryList> {
   void dispose() {
     super.dispose();
     _sc.dispose();
-    _saveResultInCache(_prevQueries);
+    // _saveResultInCache(_prevQueries);
+    _authStateChangesSubscription?.cancel();
   }
 
   @override
