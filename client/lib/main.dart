@@ -47,8 +47,8 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
-          bodyLarge: GoogleFonts.notoSansJp(fontSize: 22.0),
-          bodyMedium: GoogleFonts.notoSansJp(fontSize: 19.0),
+          bodyLarge: GoogleFonts.notoSansJp(fontSize: MediaQuery.textScalerOf(context).scale(25.0)),
+          bodyMedium: GoogleFonts.notoSansJp(fontSize: MediaQuery.textScalerOf(context).scale(18.0)),
         ),
         colorScheme: ColorScheme(
           brightness: Brightness.light,
@@ -103,6 +103,18 @@ class _MyHomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     initialize();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool isLargeScreen = MediaQuery.sizeOf(context).width > 600;
+
     mainScreen = [
       Center(
         child: Column(
@@ -113,7 +125,7 @@ class _MyHomePageState extends State<HomePage> {
               message: "Welcome to Miyabi!",
               child: Text(
                 "みやびへようこそ！",
-                style: GoogleFonts.shipporiMincho(fontSize: 38.0),
+                style: GoogleFonts.shipporiMincho(fontSize: MediaQuery.textScalerOf(context).scale(38.0)),
               ),
             ),
             Column(
@@ -135,17 +147,6 @@ class _MyHomePageState extends State<HomePage> {
       const SavedWords(key: Key("saved")),
       const MatchingGame(key: Key("matching")),
     ];
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    bool isLargeScreen = MediaQuery.sizeOf(context).width > 600;
 
     return FutureBuilder(
       future: _completer.future,
@@ -194,7 +195,7 @@ class _MyHomePageState extends State<HomePage> {
                           padding: EdgeInsetsGeometry.all(16.0),
                           child: Text(
                             "みやび",
-                            style: GoogleFonts.shipporiMincho(fontSize: 38.0),
+                            style: GoogleFonts.shipporiMincho(fontSize: MediaQuery.textScalerOf(context).scale(38.0)),
                           ),
                         ),
                         Row(

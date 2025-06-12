@@ -15,7 +15,7 @@ class CustomBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.onPrimary,
       actions: [InfoButton(), SettingsButton(), LoginOut()],
-      title: Text("みやび", style: GoogleFonts.shipporiMincho(fontSize: 38.0)),
+      title: Text("みやび", style: GoogleFonts.shipporiMincho(fontSize: MediaQuery.textScalerOf(context).scale(38.0))),
       actionsPadding: EdgeInsets.all(8.0),
       elevation: 10.0,
       centerTitle: true,
