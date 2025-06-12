@@ -27,18 +27,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(255, 171, 231, 231),
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.all(16.0),
-          width: 530,
-          height: 600.0,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(31.0),
-          ),
-          child: Form(
+    double width = MediaQuery.sizeOf(context).width;
+    double height = MediaQuery.sizeOf(context).height;
+
+    var form = Form(
             key: key,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -46,7 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
 
 
-                Text("Register", style: TextStyle(fontSize: 35.0)),
+                Text("Register", style: TextStyle(fontSize: MediaQuery.of(context).textScaler.scale(35.0))),
                 TextFormField(
                   decoration: InputDecoration(
                     errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
@@ -133,13 +125,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     }
                     key.currentState!.validate();
                   },
-                  label: Text('Register', style: TextStyle(fontSize: 21.0)),
+                  label: Text('Register', style: TextStyle(fontSize: MediaQuery.of(context).textScaler.scale(21.0))),
                   icon: const Icon(Icons.key),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Already registered?", style: TextStyle(fontSize: 12.0)),
+                    Text("Already registered?", style: TextStyle(fontSize: MediaQuery.of(context).textScaler.scale(12.0))),
                     TextButton(
                       child: Text("Login."),
                       onPressed: () {
@@ -155,9 +147,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ],
             ),
+          );
+    
+    return Scaffold(
+      backgroundColor: Color.fromARGB(255, 171, 231, 231),
+      body: Center(
+        child: LayoutBuilder(builder: (context, constraints) {
+          if (constraints.maxWidth > 1200) {
+            return Container(
+          padding: EdgeInsets.all(16.0),
+          width: width * 0.3,
+          height: height * 0.8,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(31.0),
           ),
-        ),
+          child: form,
+        );}
+        else {
+          return SingleChildScrollView(child: form);
+        }}
       ),
-    );
+    ));
   }
 }

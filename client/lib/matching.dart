@@ -30,8 +30,7 @@ class _MatchingGameState extends State<MatchingGame> {
     super.initState();
     if (_backupWords.isNotEmpty) {
       _futureWords = Future.value(_backupWords);
-    }
-    else {
+    } else {
       _futureWords = fetchWords();
       _futureWords.then((future) {
         _backupWords = future;
@@ -75,16 +74,13 @@ class _MatchingGameState extends State<MatchingGame> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    return FutureBuilder(
-      future: _futureWords,
+    return FutureBuilder(future: _futureWords,
       builder: (context, snapshot) {
-        List<Widget> children;
-        if (showEndScreen) {
-          children = [
-            Container(
-              width: 400,
+        return LayoutBuilder(builder: (context, constraints) {
+
+          if (showEndScreen) {
+            return Center(child: Container(
+              width: constraints.maxWidth > 600 ? 400 : constraints.maxWidth * 0.8,
               padding: EdgeInsets.all(24.0),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
@@ -132,14 +128,82 @@ class _MatchingGameState extends State<MatchingGame> {
                   ),
                 ],
               ),
-            ),
-          ];
-        } else if (snapshot.hasData) {
-          var currentList = snapshot.data!;
-          children = [
-            Container(
-              width: screenWidth * 0.3, // 40% della larghezza dello schermo
-              height: screenHeight * 0.2,
+            ),);
+          }
+          else if (snapshot.hasData) {
+            var currentList = snapshot.data!;
+
+            var options = List.generate(3, (index) {
+                          Color getColor() {
+                            if (selectedIndex == index) {
+                              if (wasCorrect == true) {
+                                return Colors.green;
+                              } else {
+                                return Colors.red;
+                              }
+                            }
+                            return Theme.of(context).colorScheme.secondary;
+                          }
+
+                          return GestureDetector(
+                            onTap: () async {
+                              if (isTapDisabled) {
+                                return;
+                              }
+
+                              setState(() {
+                                isTapDisabled = true;
+                                selectedIndex = index;
+                                wasCorrect =
+                                    snapshot.data![index].word == selectedWord;
+                                if (wasCorrect!) rightChoices++;
+                              });
+
+                              await Future.delayed(Duration(milliseconds: 750));
+                              if (counter > 9) {
+                                setState(() {
+                                  showEndScreen = true;
+                                  isTapDisabled = false;
+                                });
+                              } else {
+                                setState(() {
+                                  counter++;
+                                  selectedIndex = null;
+                                  wasCorrect = null;
+                                  _futureWords = fetchWords();
+                                  isTapDisabled = false;
+                                });
+                              }
+                            },
+                            child: Container(
+                              width: constraints.maxWidth * 0.8,
+                              height: constraints.maxHeight * 0.12,
+                              decoration: BoxDecoration(
+                                color: getColor(),
+                                borderRadius: BorderRadius.circular(32.0),
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    (currentList[index]
+                                        .senses[0]
+                                        .meaning[0]
+                                        .text),
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+
+            return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, spacing: 16.0, children: [Container(
+              width: constraints.maxWidth * 0.8, // 30% della larghezza dello schermo
+              height: constraints.maxHeight * 0.2,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(32.0),
@@ -154,96 +218,12 @@ class _MatchingGameState extends State<MatchingGame> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(3, (index) {
-                  Color getColor() {
-                    if (selectedIndex == index) {
-                      if (wasCorrect == true) {                        
-                        return Colors.green;
-                      } else {
-                        return Colors.red;
-                      }
-                    }
-                    return Theme.of(context).colorScheme.primary;
-                  }
-
-                  return GestureDetector(
-                    onTap: () async {
-                      if (isTapDisabled) {
-                        return;
-                      }
-
-                      setState(() {
-                        isTapDisabled = true;
-                        selectedIndex = index;
-                        wasCorrect = snapshot.data![index].word == selectedWord;
-                        if (wasCorrect!) rightChoices++;
-                      });
-
-                      await Future.delayed(Duration(milliseconds: 750));
-                      if (counter > 9) {
-                        setState(() {
-                          showEndScreen = true;
-                          isTapDisabled = false;
-                        });
-                      } else {
-                        setState(() {
-                          counter++;
-                          selectedIndex = null;
-                          wasCorrect = null;
-                          _futureWords = fetchWords();
-                          isTapDisabled = false;
-                        });
-                      }
-                    },
-                    child: Container(
-                      width: 300,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: getColor(),
-                        borderRadius: BorderRadius.circular(32.0),
-                      ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            (currentList[index].senses[0].meaning[0].text),
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            textAlign: TextAlign.center,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ];
-        } else if (snapshot.hasError) {
-          children = [Text("${snapshot.error}")];
-        } else {
-          children = const [
-            SizedBox(
-              width: 100,
-              height: 100,
-              child: CircularProgressIndicator(),
-            ),
-          ];
-        }
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: children,
-          ),
+            ), ...options]));
+            }
+            return Center(child: const CircularProgressIndicator());
+          }
         );
-      },
+      }
     );
   }
 }

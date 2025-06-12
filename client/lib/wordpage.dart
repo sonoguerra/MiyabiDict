@@ -25,12 +25,12 @@ class WordPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 30.0,
             children: [
-              Row(
+              Wrap(
                 spacing: 10.0,
                 children: [
                   SelectableText(
                     displayed.word,
-                    style: GoogleFonts.shipporiMincho(fontSize: 65.0),
+                    style: GoogleFonts.shipporiMincho(fontSize: MediaQuery.textScalerOf(context).scale(52.0)),
                   ),
                   Tooltip(
                     message: _kanaKit.toRomaji(displayed.kana[0].text),
@@ -44,7 +44,7 @@ class WordPage extends StatelessWidget {
                       style: GoogleFonts.shipporiMincho(
 
 
-                        fontSize: 35.0,
+                        fontSize: MediaQuery.textScalerOf(context).scale(35.0),
                         color: Color.fromARGB(201, 0, 0, 0),
                       ),
                     ),
@@ -73,7 +73,7 @@ class WordPage extends StatelessWidget {
                           child: Text(
                             displayed.senses[index].tags[i],
                             style: GoogleFonts.ebGaramond(
-                              fontSize: 16,
+                              fontSize: MediaQuery.textScalerOf(context).scale(16),
                               color: Colors.white,
                             ),
                           ),
@@ -93,7 +93,7 @@ class WordPage extends StatelessWidget {
                         (i) {
                           return Text(
                             "• ${displayed.senses[index].meaning[i].text}",
-                            style: GoogleFonts.ebGaramond(fontSize: 21.0),
+                            style: GoogleFonts.ebGaramond(fontSize: MediaQuery.textScalerOf(context).scale(21.0)),
                           );
                         },
                       ),
@@ -143,7 +143,7 @@ class WordPage extends StatelessWidget {
                 },
                 shrinkWrap: true,
 
-
+                physics: NeverScrollableScrollPhysics(),
               ),
               ListView.builder(
                 itemBuilder:
@@ -153,6 +153,7 @@ class WordPage extends StatelessWidget {
                     ),
                 itemCount: displayed.forms.length,
                 shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
               ),
             ],
           ),

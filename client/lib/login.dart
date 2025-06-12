@@ -25,18 +25,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.all(16.0),
-          width: 530,
-          height: 600.0,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(31.0),
-          ),
-          child: Form(
+    double width = MediaQuery.sizeOf(context).width;
+    double height = MediaQuery.sizeOf(context).height;
+
+    var form = Form(
             key: key,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
 
 
-                Text("Login", style: TextStyle(fontSize: 35.0)),
+                Text("Login", style: TextStyle(fontSize: MediaQuery.of(context).textScaler.scale(35.0))),
                 TextFormField(
                   decoration: InputDecoration(
                     errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
@@ -107,13 +99,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     key.currentState!.validate();
                   },
-                  label: Text('Login', style: TextStyle(fontSize: 21.0)),
+                  label: Text('Login', style: TextStyle(fontSize: MediaQuery.of(context).textScaler.scale(21.0))),
                   icon: const Icon(Icons.key),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("New user?", style: TextStyle(fontSize: 12.0)),
+                    Text("New user?", style: TextStyle(fontSize: MediaQuery.of(context).textScaler.scale(12.0))),
                     TextButton(
                       child: Text("Register."),
                       onPressed: () {
@@ -148,9 +140,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
+          );
+
+
+    //Basically the UI is displayed as a container in the center of the screen on large windows (PC) and as a normal scrollable page (similar to basic HTML appearance) on others.
+    return Scaffold(
+      backgroundColor: width > 1200 ? Theme.of(context).colorScheme.tertiary : Colors.white,
+      body: Center(
+        child: LayoutBuilder(builder: (context, constraints) {
+          if (constraints.maxWidth > 1200) {
+            return Container(
+          padding: EdgeInsets.all(16.0),
+          width: width * 0.3,
+          height: height * 0.8,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(31.0),
           ),
-        ),
+          child: form,
+        );}
+        else {
+          return SingleChildScrollView(child: form);
+        }}
       ),
-    );
+    ));
   }
 }
