@@ -242,9 +242,9 @@ class _AddVocabState extends State<AddVocab> {
     }
 
     if (context.mounted) {
+
+      //The linter gives a warning here but this is actually correct.
       ScaffoldMessenger.of(context).showSnackBar(
-
-
         SnackBar(
           content: Text(
             toggled ? "Removed from collection" : "Added to collection.",
@@ -257,6 +257,7 @@ class _AddVocabState extends State<AddVocab> {
       });
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {

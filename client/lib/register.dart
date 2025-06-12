@@ -142,6 +142,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         );
                       },
+
+                      
                     ),
                   ],
                 ),
@@ -150,7 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           );
     
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 171, 231, 231),
+      backgroundColor: width > 1200 ? Theme.of(context).colorScheme.tertiary : Colors.white,
       body: Center(
         child: LayoutBuilder(builder: (context, constraints) {
           if (constraints.maxWidth > 1200) {

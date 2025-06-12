@@ -128,11 +128,14 @@ class _DictionaryListState extends State<DictionaryList> {
         }
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("No results found...")
-        )
-      );
+      if (context.mounted) {
+        //The linter gives a warning here but this is actually correct.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No results found...")
+          )
+        );
+      }
     }
 
     setState(() {

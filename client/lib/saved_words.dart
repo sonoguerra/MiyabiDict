@@ -50,6 +50,7 @@ class _SavedWordsState extends State<SavedWords> {
 
   void _pushNavigator(Map<String, dynamic> word) async {
     var vocab = await Database.wordById(word["id"]);
+    //The linter gives a warning here but this is actually correct.
     if (context.mounted) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => WordPage(vocab)));
     }

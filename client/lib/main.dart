@@ -28,8 +28,6 @@ void main() async {
   });
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.platform);
-  //This method is shown as deprecated but is actually the right option on the web platform.
-  //FirebaseFirestore.instance.enablePersistence(const PersistenceSettings(synchronizeTabs: true));
   FirebaseFirestore.instance.settings = Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
@@ -43,8 +41,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-
     return MaterialApp(
+
       theme: ThemeData(
         textTheme: TextTheme(
           bodyLarge: GoogleFonts.notoSansJp(fontSize: MediaQuery.textScalerOf(context).scale(25.0)),
@@ -66,7 +64,9 @@ class MainApp extends StatelessWidget {
       ),
       home: HomePage(),
       debugShowCheckedModeBanner: false,
+
     );
+    
   }
 }
 
