@@ -1,10 +1,11 @@
+import 'dart:js_interop';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'entry.dart';
 import 'package:flutter/material.dart';
-
+import 'package:web/web.dart' as web;
 import 'package:google_fonts/google_fonts.dart';
-import 'main.dart';
 import 'package:kana_kit/kana_kit.dart';
+import 'main.dart';
 import 'uielems.dart';
 
 class WordPage extends StatelessWidget {
@@ -41,9 +42,9 @@ class WordPage extends StatelessWidget {
                                   .text //Displays the reading separately only if the reading doesn't already coincide with the actual word.
                           ? ""
                           : "【${displayed.kana[0].text}】",
+
+
                       style: GoogleFonts.shipporiMincho(
-
-
                         fontSize: MediaQuery.textScalerOf(context).scale(35.0),
                         color: Color.fromARGB(201, 0, 0, 0),
                       ),
@@ -102,7 +103,7 @@ class WordPage extends StatelessWidget {
                         (i) {
                           return Text(
                             displayed.senses[index].info[i],
-                            style: GoogleFonts.ebGaramond(
+                            style: GoogleFonts.shipporiMincho(
                               fontStyle: FontStyle.italic,
                             ),
                           );
@@ -141,8 +142,9 @@ class WordPage extends StatelessWidget {
                 separatorBuilder: (context, index) {
                   return Column(children: [Divider(), SizedBox(height: 16.0)]);
                 },
-                shrinkWrap: true,
 
+
+                shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
               ),
               ListView.builder(
@@ -255,6 +257,8 @@ class _AddVocabState extends State<AddVocab> {
       setState(() {
         toggled = !toggled;
       });
+
+      web.window.navigator.vibrate(100.toJS);
     }
   }
   

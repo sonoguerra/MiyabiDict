@@ -99,6 +99,9 @@ class Database {
   }
 
   static Future<bool> download() async {
+    //Ask for data persistence to the browser.
+    await window.navigator.storage.persist().toDart;
+    
     IDBDatabase? database;
     Uri resource = Uri.https(_domain, "/dictionary/common");
     Completer<bool> completer = Completer();
@@ -156,9 +159,16 @@ class Database {
   //Basic method for detecting installation of the database; doesn't check if all data is intact.
   static Future<bool> isDatabaseInstalled() async {
     var databases = await window.indexedDB.databases().toDart;
+    Completer<bool> completer = Completer();
     for (int i = 0; i < databases.length; i++) {
       if (databases[i].name == "vocabulary") {
-        return true;
+        var req = window.indexedDB.open("vocabulary", 1);
+        req.onsuccess = ((Event event) {
+          IDBDatabase idb = req.result as IDBDatabase;
+          var objStores = idb.objectStoreNames;
+          completer.complete(objStores.contains("words"));
+        }).toJS;
+        return completer.future;
       }
     }
     return false;

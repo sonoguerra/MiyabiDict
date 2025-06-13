@@ -3,8 +3,8 @@
     "short_name": "miyabi",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
+    "background_color": "#FFFFFF",
+    "theme_color": "#65B891",
     "description": "Bilingual dictionary app for learning Japanese.",
     "orientation": "natural",
     "prefer_related_applications": false,
@@ -30,6 +30,12 @@
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshots/screenshot.png",
+            "form_factor": "narrow"
         }
     ]
 }

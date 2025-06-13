@@ -1,1 +1,29 @@
-{"flutter":{"platforms":{"dart":{"lib/firebase_options.dart":{"projectId":"miyabi-20cc9","configurations":{"web":"1:563075540906:web:1e5010df68b7422a21add3"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "miyabi-20cc9",
+          "configurations": {
+            "web": "1:563075540906:web:1e5010df68b7422a21add3"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "site": "miyabidict",
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
