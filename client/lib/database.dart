@@ -32,6 +32,20 @@ class Database {
                 ? Uri.https(_domain, "/search/reading/$q")
                 : Uri.https(_domain, "/search/kanji/$q");
     }
+
+    var cache = await window.caches.open('cached_words').toDart;
+    var cachedWords = await cache.match(resource.toString().toJS).toDart;
+
+    if (cachedWords != null && cachedWords.ok) {
+      var response = await cachedWords.text().toDart;
+      var partial = jsonDecode(response.toDart)['words'];
+      for (int i = 0; i < partial.length; i++) {
+        result.add(Vocabulary.fromJson(partial[i]));
+      }
+
+      return result;
+    }
+
     if (!window.navigator.onLine || (prefs.getBool("useLocalDictionary") ?? false)) {
       IDBDatabase? database;
       var request = window.indexedDB.open("vocabulary", 1);
@@ -84,6 +98,10 @@ class Database {
         }).toJS;
       }).toJS;
 
+      request.onerror = ((Event event) {
+        completer.complete([]); //Returns an empty list if the database in case of error, so that the snackbar can be displayed.
+      }).toJS;
+
       return completer.future;
     }
     else {
@@ -94,6 +112,8 @@ class Database {
         result.add(Vocabulary.fromJson(partial[i]));
       }
 
+      var cache = await window.caches.open('cached_words').toDart;
+      await cache.add(resource.toString().toJS).toDart;
       return result;
     }
   }
