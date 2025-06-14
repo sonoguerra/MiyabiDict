@@ -40,6 +40,7 @@ class _MatchingGameState extends State<MatchingGame> {
 
   Future<List<Vocabulary>> fetchWords() async {
     List<String> characters = JPUtils.romajiMapping.keys.toList();
+    
     list = [];
 
     for (int i = 0; i < 3; i++) {
@@ -64,6 +65,9 @@ class _MatchingGameState extends State<MatchingGame> {
       list.add(vocab);
     }
     selectedWord = list[randomNumber(0, 2)].word;
+    setState(() {
+      isTapDisabled = false;
+    });
     return list;
   }
 
@@ -71,6 +75,31 @@ class _MatchingGameState extends State<MatchingGame> {
     final random = Random();
     return min + random.nextInt(max - min + 1);
   }
+
+  void select(AsyncSnapshot<List<Vocabulary>> snapshot, int index) async {
+    setState(() {
+                                isTapDisabled = true;
+                                selectedIndex = index;
+                                wasCorrect =
+                                    snapshot.data![index].word == selectedWord;
+                                if (wasCorrect!) rightChoices++;
+                              });
+
+                              await Future.delayed(Duration(milliseconds: 750));
+                              if (counter > 9) {
+                                setState(() {
+                                  showEndScreen = true;
+                                  isTapDisabled = false;
+                                });
+                              } else {
+                                setState(() {
+                                  counter++;
+                                  selectedIndex = null;
+                                  wasCorrect = null;
+                                  _futureWords = fetchWords();
+                                });
+                              }
+                            }
 
   @override
   Widget build(BuildContext context) {
@@ -146,35 +175,7 @@ class _MatchingGameState extends State<MatchingGame> {
                           }
 
                           return GestureDetector(
-                            onTap: () async {
-                              if (isTapDisabled) {
-                                return;
-                              }
-
-                              setState(() {
-                                isTapDisabled = true;
-                                selectedIndex = index;
-                                wasCorrect =
-                                    snapshot.data![index].word == selectedWord;
-                                if (wasCorrect!) rightChoices++;
-                              });
-
-                              await Future.delayed(Duration(milliseconds: 750));
-                              if (counter > 9) {
-                                setState(() {
-                                  showEndScreen = true;
-                                  isTapDisabled = false;
-                                });
-                              } else {
-                                setState(() {
-                                  counter++;
-                                  selectedIndex = null;
-                                  wasCorrect = null;
-                                  _futureWords = fetchWords();
-                                  isTapDisabled = false;
-                                });
-                              }
-                            },
+                            onTap: isTapDisabled ? null : () => select(snapshot, index),
                             child: Container(
                               width: constraints.maxWidth * 0.8,
                               height: constraints.maxHeight * 0.12,
