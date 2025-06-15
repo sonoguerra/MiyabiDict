@@ -27,6 +27,8 @@ class _SavedWordsState extends State<SavedWords> {
 
     // this prevents the state to be set after disposal
     if (mounted) {
+      // if no words are saved in the database, then set _words to an empty list,
+      // else retrieve the saved data from the database and assign it to _words.
       if (res.data()?["saved"] == null) {
         setState(() {
           _words = [];
@@ -50,7 +52,7 @@ class _SavedWordsState extends State<SavedWords> {
 
   void _pushNavigator(Map<String, dynamic> word) async {
     var vocab = await Database.wordById(word["id"]);
-    //The linter gives a warning here but this is actually correct.
+    // the linter gives a warning here but this is actually correct.
     if (context.mounted) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => WordPage(vocab)));
     }
@@ -62,12 +64,13 @@ class _SavedWordsState extends State<SavedWords> {
       stream: auth.userChanges(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          // if user logs out while in saved_words page, enters this if
+          // if user logs out while in saved_words page, the app enters this if
           if (auth.currentUser == null) {
             return Center(
               child: Text("You need to be logged in to use this feature."),
             );
           } else {
+            // if user is authenticated, then call _loadSavedWords
             _loadSavedWords();
             return ListView.builder(
               itemCount: _words.length,
@@ -100,6 +103,7 @@ class _SavedWordsState extends State<SavedWords> {
               },
             );
           }
+        // if user is not authenticated, the app enters this else
         } else {
           // loads until auth gets all data after login
           if (auth.currentUser != null) {

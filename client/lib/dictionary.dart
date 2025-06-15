@@ -46,14 +46,13 @@ class _DictionaryListState extends State<DictionaryList> {
     });
   }
 
-  // Loads saved words list from cache
   void _loadList() async {
     List<String> queries = [];
     setState(() {
       _isLoading = true;
     });
 
-    // if user is not logged then fetch data from cache 
+    // if user is not logged in, then fetch data from cache,
     // else fetch data from Firebase 
     if (auth.currentUser == null) {
       final SharedPreferencesWithCache prefs = await _prefs;
@@ -62,7 +61,7 @@ class _DictionaryListState extends State<DictionaryList> {
       final doc = _db.collection("history").doc(auth.currentUser!.uid);
       final value = await doc.get();
 
-      // if user already has saved history in db then fetch it,
+      // if user already has saved history in db, then fetch it,
       // else create entry in db.
       if (value.exists) {
         queries =
@@ -79,7 +78,6 @@ class _DictionaryListState extends State<DictionaryList> {
     });
   }
 
-  // saves previous queries in cache.
   void _saveResultInCache(List<String> q) async {
     final SharedPreferencesWithCache prefs = await _prefs;
     prefs.setStringList("history", q);
@@ -88,7 +86,7 @@ class _DictionaryListState extends State<DictionaryList> {
   void _saveResultInFirebase(String q) async {
     final doc = _db.collection("history").doc(auth.currentUser!.uid);
     doc.get().then((value) {
-      // if user already has saved history in db then fetch it,
+      // if user already has saved history in db, then fetch it,
       // else create entry in db.
       if (value.exists) {
         doc.update({
@@ -149,7 +147,7 @@ class _DictionaryListState extends State<DictionaryList> {
       _prevQueries.remove(q);
     });
 
-    // if user is not logged in then removes value from the cache
+    // if user is not logged in, then removes value from the cache
     // else remove result from Firebase
     if (auth.currentUser == null) {
       _saveResultInCache(_prevQueries);
@@ -162,7 +160,6 @@ class _DictionaryListState extends State<DictionaryList> {
   void dispose() {
     super.dispose();
     _sc.dispose();
-    // _saveResultInCache(_prevQueries);
     _authStateChangesSubscription?.cancel();
   }
 
@@ -173,6 +170,8 @@ class _DictionaryListState extends State<DictionaryList> {
         Padding(
           padding: EdgeInsets.all(16.0),
           child: SearchAnchor(
+            // we decided to use a private and shared SearchController
+            // instead of builder default parameter to avoid inconsistent state
             builder: (context, _) {
               return SearchBar(
                 leading: IconButton(
