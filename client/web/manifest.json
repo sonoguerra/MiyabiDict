@@ -35,7 +35,22 @@
     "screenshots": [
         {
             "src": "screenshots/screenshot.png",
-            "form_factor": "narrow"
+            "form_factor": "narrow",
+            "sizes": "498x807"
+        },
+        {
+            "src": "screenshots/wordpage.png",
+            "form_factor": "wide",
+            "sizes": "1920x1046"
+
+        },
+        
+        {
+
+            "src": "screenshots/search.png",
+            "form_factor": "wide",
+            "sizes": "1920x1046"
+
         }
     ]
 }
