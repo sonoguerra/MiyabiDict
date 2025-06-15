@@ -34,8 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 25.0,
               children: [
-
-
                 Text("Login", style: TextStyle(fontSize: MediaQuery.of(context).textScaler.scale(35.0))),
                 TextFormField(
                   decoration: InputDecoration(
@@ -44,6 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
+
+                  
                   controller: email,
                   validator: (value) {
                     if (wrongEmail) {

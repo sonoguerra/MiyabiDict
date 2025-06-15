@@ -120,7 +120,7 @@ class WordPage extends StatelessWidget {
                       ...List<Widget>.generate(
                         displayed.senses[index].antonym.length,
                         (i) {
-                          return Text(
+                          return SelectableText(
                             "antonym: ${displayed.senses[index].antonym[i][0]}",
                             style: GoogleFonts.shipporiMincho(),
                           );
@@ -145,7 +145,7 @@ class WordPage extends StatelessWidget {
 
 
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: NeverScrollableScrollPhysics(), //This prevents unwanted behaviors on mobile devices.
               ),
               ListView.builder(
                 itemBuilder:
@@ -185,6 +185,7 @@ class _AddVocabState extends State<AddVocab> {
     getCollection();
   }
 
+  //Checks if word is present in collection.
   void getCollection() async {
     var present = false;
     if (auth.currentUser != null) {

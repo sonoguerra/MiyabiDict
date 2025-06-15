@@ -33,7 +33,7 @@ class _MatchingGameState extends State<MatchingGame> {
     } else {
       _futureWords = fetchWords();
       _futureWords.then((future) {
-        _backupWords = future;
+        _backupWords = future;  //State management.
       });
     }
   }
@@ -43,13 +43,14 @@ class _MatchingGameState extends State<MatchingGame> {
     
     list = [];
 
+    //Generates three words and randomly select one as the one to guess.
     for (int i = 0; i < 3; i++) {
       do {
         selectedCharacter = characters[randomNumber(0, characters.length - 1)];
       } while (selectedCharacter == "ゐ" ||
           selectedCharacter == " ヰ" ||
           selectedCharacter == "ヱ" ||
-          selectedCharacter == "ゑ");
+          selectedCharacter == "ゑ"); //Get a list of words starting with a certain character, except obsolete kana that have been removed from common writings.
       List<Vocabulary> result = await Database.search(selectedCharacter);
 
       if (result.isEmpty) {
@@ -66,7 +67,7 @@ class _MatchingGameState extends State<MatchingGame> {
     }
     selectedWord = list[randomNumber(0, 2)].word;
     setState(() {
-      isTapDisabled = false;
+      isTapDisabled = false; //When the next word has been successfully fetched, make the interface tappable again. Prevents glitches.
     });
     return list;
   }
@@ -78,14 +79,14 @@ class _MatchingGameState extends State<MatchingGame> {
 
   void select(AsyncSnapshot<List<Vocabulary>> snapshot, int index) async {
     setState(() {
-                                isTapDisabled = true;
+                                isTapDisabled = true; //When an answer is selected immediately prevent the user from tapping again.
                                 selectedIndex = index;
                                 wasCorrect =
                                     snapshot.data![index].word == selectedWord;
                                 if (wasCorrect!) rightChoices++;
                               });
 
-                              await Future.delayed(Duration(milliseconds: 750));
+                              await Future.delayed(Duration(milliseconds: 750)); //Give some time to the user to read the result.
                               if (counter > 9) {
                                 setState(() {
                                   showEndScreen = true;
@@ -105,8 +106,8 @@ class _MatchingGameState extends State<MatchingGame> {
   Widget build(BuildContext context) {
     return FutureBuilder(future: _futureWords,
       builder: (context, snapshot) {
+        //UI adapts to different screen sizes.
         return LayoutBuilder(builder: (context, constraints) {
-
           if (showEndScreen) {
             return Center(child: Container(
               width: constraints.maxWidth > 600 ? 400 : constraints.maxWidth * 0.8,
@@ -203,7 +204,7 @@ class _MatchingGameState extends State<MatchingGame> {
                         });
 
             return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, spacing: 16.0, children: [Container(
-              width: constraints.maxWidth * 0.8, // 30% della larghezza dello schermo
+              width: constraints.maxWidth * 0.8,
               height: constraints.maxHeight * 0.2,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,

@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'entry.g.dart';
 
+//Maps JMdict simplified results according to documentation. Some attributes have been renamed for better semantic coherence.
 @JsonSerializable(explicitToJson: true)
 class Vocabulary {
 
@@ -18,9 +19,11 @@ class Vocabulary {
 
   Vocabulary(this.id, this.kanjis, this.senses, this.kana);
 
+  //word corresponds to the first kanji, if common, otherwise to the first kana reading.
   String get word => (kanjis.isNotEmpty && kanjis[0].common) ? kanjis[0].text : kana[0].text;
   String get mainReading => kana[0].text;
 
+  //This method pairs kanji variants with corresponding readings (+ standalone kana)
   List<String> get forms {
     Set<String> res = {};
     for (int i = 0; i < kanjis.length; i++) {
@@ -40,10 +43,9 @@ class Vocabulary {
     return res.toList();
   }
 
+  //Gets all pieces of related information (tags)
   Set<String> get allTags {
     Set<String> res = {};
-
-
     for (int i = 0; i < kanjis.length; i++) {
       res.addAll(kanjis[i].tags);
     }
@@ -56,6 +58,7 @@ class Vocabulary {
     return res;
   }
 
+  //Compact view that exposes only the elements to be displayed in the dictionary results view.
   List<String> listViewElements() => [word, (word == mainReading ? "" : mainReading), _compactGlosses()];
 
   String _compactGlosses() {
@@ -133,10 +136,12 @@ class Language {
 
 @JsonSerializable(explicitToJson: true)
 class JSense {
+
   final List<dynamic> antonym;
   final List<String> appliesToKanji;
   final List<String> appliesToKana;
   final List<String> dialect;
+  final List<String> info;
 
   @JsonKey(name: "field")
   final List<String> subject;
@@ -144,7 +149,6 @@ class JSense {
   @JsonKey(name: "gloss")
   final List<JGloss> meaning;
   
-  final List<String> info;
   final List<Language> languageSource;
   final List<String> misc;
   final List<String> partOfSpeech;
